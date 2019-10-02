@@ -15,11 +15,17 @@ public class jart : MonoBehaviour
 		Color.magenta,
 		Color.yellow
 	};
+	private string[] possibleShaders =
+	{
+		"Sprites/Default",
+		"Sprites/Mask"
+	};
 	private List<Sprite> jartlets = new List<Sprite>();
 	private Sprite sprite;
 	private int jartletAmount = 100;
-	private int jartboardHeight = 10;
-	private int jartboardWidth = 15;
+	private int jartboardHeight = 20;
+	private int jartboardWidth = 30;
+	private int totalZLevels = 5;
 
 	/**
 	 * Creates a sprite. Intended to be used to create Jartlets
@@ -42,20 +48,36 @@ public class jart : MonoBehaviour
 		// make sure masking actually works
 		sr.maskInteraction = SpriteMaskInteraction.VisibleOutsideMask;
 
-		// skew that renderer all up if we want it skewed
-		if (skew)
-		{
-			sr.transform.rotation = new Quaternion(randomizer.Next(-20, 20), randomizer.Next(-20, 20), randomizer.Next(-20, 20), 0);
-		}
-
 		// tell the sprite renderer about the sprite
 		sr.sprite = sprite;
 
 		// set the position of the object
-		go.transform.position = new Vector3(originX / 10, originY / 10, 0);
+		go.transform.position = new Vector3(originX / 8, originY / 8, 0);
 		go.transform.localScale = new Vector3(width, height, 0);
+		// skew that renderer all up if we want it skewed
+		if (skew)
+		{
+			sr.transform.rotation = new Quaternion(randomizer.Next(-360, 360), randomizer.Next(-360, 360), randomizer.Next(-360, 360), 0);
+		}
 
 		return sprite;
+	}
+
+	/// <summary>
+	/// A generic function that will return a random element
+	/// of any array you pass it.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="array"></param>
+	/// <returns></returns>
+	private T getRandomArrayItem<T>(T[] array)
+	{
+		return array[randomizer.Next(0, array.Length)];
+	}
+
+	private string generateShader()
+	{
+		return getRandomArrayItem(possibleShaders);
 	}
 
 	/// <summary>
@@ -67,13 +89,13 @@ public class jart : MonoBehaviour
 		for (int i = 0; i < jartletAmount; i++)
 		{
 			jartlets.Add(createSprite(
-				possibleColors[randomizer.Next(0, possibleColors.Length - 1)],
-				randomizer.Next(0, 4) >= 1 ? "Sprites/Mask" : "Sprites/Default",
+				getRandomArrayItem(possibleColors),
+				generateShader(),
 				randomizer.Next(1, jartboardWidth),
 				randomizer.Next(1, jartboardHeight),
 				randomizer.Next(0, jartboardWidth),
 				randomizer.Next(0, jartboardHeight),
-				randomizer.Next(0, jartletAmount),
+				randomizer.Next(0, totalZLevels),
 				true
 			));
 		}
@@ -81,12 +103,12 @@ public class jart : MonoBehaviour
 
 	private void createJartboard()
 	{
-		jartboard = createSprite(possibleColors[randomizer.Next(0, possibleColors.Length - 1)], "Sprites/Default", jartboardWidth, jartboardHeight);
+		jartboard = createSprite(getRandomArrayItem(possibleColors), "Sprites/Default", jartboardWidth, jartboardHeight);
 	}
 
 	public void Start()
 	{
-		jartletAmount = randomizer.Next(10, 70);
+		jartletAmount = randomizer.Next(25, 100);
 		createJartboard();
 		createJartlets();
 		// render out newly created jartlets and jartboard

@@ -7,7 +7,7 @@ public class SetCameraPosition : MonoBehaviour
 	private void centerCameraOnJartboard()
 	{
 		Camera camera = GetComponent<Camera>();
-		camera.backgroundColor = Color.white;
+		camera.backgroundColor = Color.black;
 		camera.clearFlags = CameraClearFlags.SolidColor;
 		camera.transform.position = new Vector3(1.15f, 0.5f, -2.9f);
 	}
@@ -15,6 +15,7 @@ public class SetCameraPosition : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
+		Cursor.visible = false;
 		centerCameraOnJartboard();
 	}
 

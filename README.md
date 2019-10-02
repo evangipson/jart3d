@@ -15,5 +15,3 @@ jart3d generates art by layering different shapes, then generating rules for wha
 
 # Contributing
 I'm glad you'd like to help make jart3d better! If you could, make an [Issue for jart3d](https://github.com/evangipson/jart3d/issues), so that the improvements can be logged and made.
-
-If you choose to fork or clone the code and create a pull request, that's fine! This project is pure javascript and css so no third party tools required.

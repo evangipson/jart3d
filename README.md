@@ -11,7 +11,7 @@ jart3d generates art by layering different shapes, then generating rules for wha
 # Built With
 * [C#](https://docs.microsoft.com/en-us/dotnet/csharp/)
 * [Unity Game Engine](https://unity.com/)
-* [Visual Studio Code](https://visualstudio.microsoft.com/vs/)
+* [Visual Studio](https://visualstudio.microsoft.com/vs/)
 
 # Contributing
 I'm glad you'd like to help make jart3d better! If you could, make an [Issue for jart3d](https://github.com/evangipson/jart3d/issues), so that the improvements can be logged and made.

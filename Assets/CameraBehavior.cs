@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class CameraBehavior : MonoBehaviour
 {
@@ -14,10 +13,10 @@ public class CameraBehavior : MonoBehaviour
     space : Moves camera on X and Z axis only.  So camera doesn't gain any height*/
 
 
-	float mainSpeed = 2.0f; //regular speed
-	float shiftAdd = 5f; //multiplied by how long shift is held.  Basically running
-	float maxShift = 50.0f; //Maximum speed when holdin gshift
-	float camSens = 0.2f; //How sensitive it with mouse
+	float mainSpeed = 10.0f; //regular speed
+	float shiftAdd = 10f; //multiplied by how long shift is held.  Basically running
+	float maxShift = 100.0f; //Maximum speed when holdin gshift
+	float camSens = 0.5f; //How sensitive it with mouse
 	private Vector3 lastMouse = new Vector3(255, 255, 255); //kind of in the middle of the screen, rather than at the top (play)
 	private float totalRun = 1.0f;
 

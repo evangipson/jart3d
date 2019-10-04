@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Jart : MonoBehaviour
@@ -29,7 +28,7 @@ public class Jart : MonoBehaviour
 	private List<GameObject> jartlets = new List<GameObject>();
 	private int jartboardMinSize = 3;
 	private int jartboardMaxSize = 15;
-
+	private int jartCubeSize = 1000; // how far the jart will expand
 	/**
 	 * Creates a sprite. Intended to be used to create Jartlets
 	 * and the Jartboard, which is returned by default (using
@@ -74,7 +73,7 @@ public class Jart : MonoBehaviour
 	 * Creates a shape. Intended to be used to create Jartlets
 	 * and the Jartboard, which is returned by default (using
 	 * default parameters). */
-	private GameObject createShape(Color color, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0, int zIndex = 0, bool skew = false)
+	private GameObject createShape(Color color, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0, bool skew = false)
 	{
 		int shapeRoll = randomizer.Next(0, 3);
 		GameObject shape = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -94,19 +93,19 @@ public class Jart : MonoBehaviour
 		// set a color after shader
 		shapeRenderer.material.color = color;
 
-		// set the z-index
-		shapeRenderer.sortingOrder = zIndex;
+		// set the rendering & shape layers
+		//shapeRenderer.sortingOrder = zIndex;
 
 		// make sure masking actually works
 		//mr.maskInteraction = SpriteMaskInteraction.VisibleOutsideMask;
 
 		// set the position of the object
-		shape.transform.position = new Vector3(originX, originY, zIndex);
+		shape.transform.position = new Vector3(originX, originY, originZ);
 		shape.transform.localScale = new Vector3(width, height, depth);
 		// skew that renderer all up if we want it skewed
 		if (skew)
 		{
-			shape.transform.rotation = new Quaternion(randomizer.Next(-360, 360), randomizer.Next(-360, 360), randomizer.Next(-360, 360), randomizer.Next(-360, 360));
+			shape.transform.rotation = new Quaternion(randomizer.Next(-360, 360), randomizer.Next(-360, 360), randomizer.Next(-360, 360), 0);
 		}
 		return shape;
 	}
@@ -129,6 +128,7 @@ public class Jart : MonoBehaviour
 	/// </summary>
 	private void createJartlets(int jartletAmount, int jartboardIndex)
 	{
+		int renderingLayer = jartBoards[jartboardIndex].GetComponent<Renderer>().sortingOrder; // will help define z-axis
 		for (int i = 0; i < jartletAmount; i++)
 		{
 			jartlets.Add(createShape(
@@ -136,10 +136,10 @@ public class Jart : MonoBehaviour
 				randomizer.Next(jartboardMinSize, jartboardMaxSize),
 				randomizer.Next(jartboardMinSize, jartboardMaxSize),
 				randomizer.Next(jartboardMinSize, jartboardMaxSize),
-				randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.x - randomizer.Next(jartboardMinSize, jartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.x),
-				randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.y - randomizer.Next(jartboardMinSize, jartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.y),
-				randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.z - randomizer.Next(jartboardMinSize, jartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.z),
-				jartBoards[jartboardIndex].gameObject.layer,
+				// place the jartlet _relative_ to the jartboard
+				randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.x - randomizer.Next(jartboardMinSize, jartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.x + randomizer.Next(jartboardMinSize, jartboardMaxSize)),
+				randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.y - randomizer.Next(jartboardMinSize, jartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.y + randomizer.Next(jartboardMinSize, jartboardMaxSize)),
+				randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.z - randomizer.Next(jartboardMinSize, jartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.z + randomizer.Next(jartboardMinSize, jartboardMaxSize)),
 				true
 			));
 		}
@@ -155,21 +155,21 @@ public class Jart : MonoBehaviour
 			randomizer.Next(jartboardMinSize, jartboardMaxSize),
 			randomizer.Next(jartboardMinSize, jartboardMaxSize),
 			randomizer.Next(jartboardMinSize, jartboardMaxSize),
-			randomizer.Next(-jartboardMaxSize * jartboardIndex, jartboardMaxSize * jartboardIndex),
-			randomizer.Next(-jartboardMaxSize * jartboardIndex, jartboardMaxSize * jartboardIndex),
-			randomizer.Next(-jartboardMaxSize * jartboardIndex, jartboardMaxSize * jartboardIndex),
-			jartboardIndex,
+			// place the jartboard anywhere in the jartcube
+			randomizer.Next(-jartCubeSize, jartCubeSize),
+			randomizer.Next(-jartCubeSize, jartCubeSize),
+			randomizer.Next(-jartCubeSize, jartCubeSize),
 			false
 		));
 	}
 
 	public void Start()
 	{
-		int jartBoards = 25;
+		int jartBoards = 50;
 		for (int i = 0; i < jartBoards; i++)
 		{
 			createJartboard(i);
-			createJartlets(randomizer.Next(2, 5), i);
+			createJartlets(randomizer.Next(2, 15), i);
 		}
 	}
 }

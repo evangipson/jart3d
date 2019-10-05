@@ -25,6 +25,13 @@ public class Menu : MonoBehaviour
 		CameraBehavior.camSens = CameraSensitivitySlider.value;
 	}
 
+	public void NewJart()
+	{
+		Resume();
+		Jart.NewJart();
+		SetCameraPosition.CenterCameraOnJartboard();
+	}
+
 	public void Quit()
 	{
 		// save any game data here

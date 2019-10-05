@@ -2,10 +2,10 @@
 
 public class SetCameraPosition : MonoBehaviour
 {
-	private void centerCameraOnJartboard()
+	public static void CenterCameraOnJartboard()
 	{
-		Camera camera = GetComponent<Camera>();
-		camera.backgroundColor = Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[Constants.ColorPaletteIndex]);
+		Camera camera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+		camera.backgroundColor = Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[Jart.ColorPaletteIndex]);
 		camera.clearFlags = CameraClearFlags.SolidColor;
 		camera.transform.position = new Vector3(0f, 0f, 0f);
 	}
@@ -14,6 +14,6 @@ public class SetCameraPosition : MonoBehaviour
 	void Start()
 	{
 		Cursor.visible = false;
-		centerCameraOnJartboard();
+		CenterCameraOnJartboard();
 	}
 }

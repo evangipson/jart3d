@@ -3,13 +3,25 @@ using UnityEngine;
 
 public class Jart : MonoBehaviour
 {
-	private List<GameObject> jartBoards = new List<GameObject>();
-	private List<GameObject> jartlets = new List<GameObject>();
+	private static List<GameObject> jartBoards = new List<GameObject>();
+	private static List<GameObject> jartlets = new List<GameObject>();
+	private static int totalJartletsPerJart = Utils.Randomizer.Next(1, 25);// pick out the color palette
+	public static int ColorPaletteIndex = Utils.Randomizer.Next(0, Colors.PossibleColorPalettes.Count - 1);
+	private static int totalJarts = Utils.Randomizer.Next(2, 40);
+	// set bounds for jartboards, the base of jarts
+	private static int jartboardMinSize = 2;
+	private static int jartboardMaxSize = Utils.Randomizer.Next(5, 50);
+	private static int jartboardMaxScale = Utils.Randomizer.Next(2, 50);
+	// the jartlets will be slightly smaller
+	public static int jartletMinSize = (int)(jartboardMinSize * 0.8);
+	public static int jartletMaxSize = (int)(jartboardMaxSize * 0.8);
+	public static int jartletMaxScale = Utils.Randomizer.Next((int)(jartboardMaxScale * 0.25), jartboardMaxScale);
+
 	/**
 	 * Creates a sprite. Intended to be used to create Jartlets
 	 * and the Jartboard, which is returned by default (using
 	 * default parameters). */
-	private Sprite createSprite(Color color, int width = 1, int height = 1, float originX = 0, float originY = 0, int zIndex = -1, bool skew = false)
+	private static Sprite createSprite(Color color, int width = 1, int height = 1, float originX = 0, float originY = 0, int zIndex = -1, bool skew = false)
 	{
 		GameObject go = new GameObject();
 		SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
@@ -49,7 +61,7 @@ public class Jart : MonoBehaviour
 	 * Creates a shape. Intended to be used to create Jartlets
 	 * and the Jartboard, which is returned by default (using
 	 * default parameters). */
-	private GameObject createShape(Color color, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0, bool skew = false)
+	private static GameObject createShape(Color color, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0, bool skew = false)
 	{
 		int shapeRoll = Utils.Randomizer.Next(0, 4);
 		GameObject shape = GameObject.CreatePrimitive(Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes));
@@ -81,17 +93,17 @@ public class Jart : MonoBehaviour
 	/// Will create and place and skew a jarlet.
 	/// TODO: implement a small chance to copy previous jartlet.
 	/// </summary>
-	private void createJartlets(int jartletAmount, int jartboardIndex)
+	private static void createJartlets(int jartletAmount, int jartboardIndex)
 	{
 		int renderingLayer = jartBoards[jartboardIndex].GetComponent<Renderer>().sortingOrder; // will help define z-axis
 		for (int i = 0; i < jartletAmount; i++)
 		{
 			jartlets.Add(createShape(
-				Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[Constants.ColorPaletteIndex]),
+				Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[ColorPaletteIndex]),
 				// change the length, width, and depth based off of how big the cube is.
-				Utils.Randomizer.Next(Constants.JartletMinSize, Constants.JartletMaxSize) * Utils.Randomizer.Next(1, Constants.JartletMaxScale),
-				Utils.Randomizer.Next(Constants.JartletMinSize, Constants.JartletMaxSize) * Utils.Randomizer.Next(1, Constants.JartletMaxScale),
-				Utils.Randomizer.Next(Constants.JartletMinSize, Constants.JartletMaxSize) * Utils.Randomizer.Next(1, Constants.JartletMaxScale),
+				Utils.Randomizer.Next(jartletMinSize, jartletMaxSize) * Utils.Randomizer.Next(1, jartletMaxScale),
+				Utils.Randomizer.Next(jartletMinSize, jartletMaxSize) * Utils.Randomizer.Next(1, jartletMaxScale),
+				Utils.Randomizer.Next(jartletMinSize, jartletMaxSize) * Utils.Randomizer.Next(1, jartletMaxScale),
 				// place the jartlet _relative_ to the jartboard
 				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.x - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.x + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5)),
 				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.y - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.y + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5)),
@@ -104,13 +116,13 @@ public class Jart : MonoBehaviour
 	/// <summary>
 	/// Creates a jartboard and gets the next jartletAmount.
 	/// </summary>
-	private void createJartboard(int jartboardIndex)
+	private static void createJartboard(int jartboardIndex)
 	{
 		jartBoards.Add(createShape(
-			Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[Constants.ColorPaletteIndex]),
-			Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize) * Utils.Randomizer.Next(1, Constants.JartboardMaxScale),
-			Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize) * Utils.Randomizer.Next(1, Constants.JartboardMaxScale),
-			Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize) * Utils.Randomizer.Next(1, Constants.JartboardMaxScale),
+			Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[ColorPaletteIndex]),
+			Utils.Randomizer.Next(jartboardMinSize, jartboardMaxSize) * Utils.Randomizer.Next(1, jartboardMaxScale),
+			Utils.Randomizer.Next(jartboardMinSize, jartboardMaxSize) * Utils.Randomizer.Next(1, jartboardMaxScale),
+			Utils.Randomizer.Next(jartboardMinSize, jartboardMaxSize) * Utils.Randomizer.Next(1, jartboardMaxScale),
 			// place the jartboard anywhere in the jartcube
 			Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize),
 			Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize),
@@ -119,14 +131,43 @@ public class Jart : MonoBehaviour
 		));
 	}
 
-	public void Start()
+	public static void clearJart()
 	{
-		int totalJartletsPerJart = Utils.Randomizer.Next(1, 25);
-		for (int i = 0; i < Constants.TotalJarts; i++)
+		// remove jartboards and jartlets from unity
+		jartBoards.ForEach(delegate(GameObject jartBoard){
+			Destroy(jartBoard);
+		});
+		jartlets.ForEach(delegate (GameObject jartlets) {
+			Destroy(jartlets);
+		});
+		// empty out the lists containing all the jarts
+		jartBoards.Clear();
+		jartlets.Clear();
+		// pick out the color palette
+		ColorPaletteIndex = Utils.Randomizer.Next(0, Colors.PossibleColorPalettes.Count - 1);
+		// reset all the jart variables
+		totalJartletsPerJart = Utils.Randomizer.Next(1, 25);
+		totalJarts = Utils.Randomizer.Next(2, 40);
+		jartboardMinSize = 2;
+		jartboardMaxSize = Utils.Randomizer.Next(5, 50);
+		jartboardMaxScale = Utils.Randomizer.Next(2, 50);
+		jartletMinSize = (int)(jartboardMinSize * 0.8);
+		jartletMaxSize = (int)(jartboardMaxSize * 0.8);
+		jartletMaxScale = Utils.Randomizer.Next((int)(jartboardMaxScale * 0.25), jartboardMaxScale);
+	}
+
+	public static void NewJart()
+	{
+		clearJart();
+		for (int i = 0; i < totalJarts; i++)
 		{
-			totalJartletsPerJart = Utils.Randomizer.Next(1, 25);
 			createJartboard(i);
 			createJartlets(totalJartletsPerJart, i);
 		}
+	}
+
+	public void Start()
+	{
+		NewJart();
 	}
 }

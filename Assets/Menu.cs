@@ -12,12 +12,14 @@ public class Menu : MonoBehaviour
 		CameraBehavior.camSens = CameraSensitivitySlider.value;
 		PauseMenuUI.SetActive(false);
 		IsPaused = false;
+		Cursor.visible = false;
 	}
 
 	public void Pause()
 	{
 		PauseMenuUI.SetActive(true);
 		IsPaused = true;
+		Cursor.visible = true;
 	}
 
 	public void AdjustCameraSensitivity(float sliderValue)
@@ -42,6 +44,11 @@ public class Menu : MonoBehaviour
 		#else
 			Application.Quit();
 		#endif
+	}
+
+	private void Start()
+	{
+		Cursor.visible = false;
 	}
 
 	void Update()

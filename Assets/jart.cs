@@ -81,7 +81,7 @@ public class Jart : MonoBehaviour
 		// skew that renderer all up if we want it skewed
 		if (skew)
 		{
-			shape.transform.rotation = new Quaternion(Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360), 0);
+			shape.transform.rotation = new Quaternion(Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360), 0, 0);
 		}
 		return shape;
 	}
@@ -102,9 +102,9 @@ public class Jart : MonoBehaviour
 				Utils.Randomizer.Next(Constants.JartletMinSize, Constants.JartletMaxSize) * Utils.Randomizer.Next(1, Constants.JartletMaxScale),
 				Utils.Randomizer.Next(Constants.JartletMinSize, Constants.JartletMaxSize) * Utils.Randomizer.Next(1, Constants.JartletMaxScale),
 				// place the jartlet _relative_ to the jartboard
-				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.x - Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.x + Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize)),
-				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.y - Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.y + Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize)),
-				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.z - Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize), (int)jartBoards[jartboardIndex].gameObject.transform.position.z + Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize)),
+				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.x - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.x + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5)),
+				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.y - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.y + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5)),
+				Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.z - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.z + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5)),
 				true
 			));
 		}

@@ -16,12 +16,22 @@ public class CameraBehavior : MonoBehaviour
 	float mainSpeed = 10.0f; //regular speed
 	float shiftAdd = 50f; //multiplied by how long shift is held.  Basically running
 	float maxShift = 500.0f; //Maximum speed when holdin gshift
-	float camSens = 0.5f; //How sensitive it with mouse
+	float camSens; //How sensitive it with mouse
 	private Vector3 lastMouse = new Vector3(255, 255, 255); //kind of in the middle of the screen, rather than at the top (play)
+	private Vector3 lastControlPoint = new Vector3(255, 255, 255); //for when the user freezes their camera angle
 	private float totalRun = 1.0f;
 
 	void Update()
 	{
+		// left control will "Freeze" camera
+		if (Input.GetKey(KeyCode.LeftControl))
+		{
+			camSens = 0f;
+		}
+		else
+		{
+			camSens = 0.5f;
+		}
 		lastMouse = Input.mousePosition - lastMouse;
 		lastMouse = new Vector3(-lastMouse.y * camSens, lastMouse.x * camSens, 0);
 		lastMouse = new Vector3(transform.eulerAngles.x + lastMouse.x, transform.eulerAngles.y + lastMouse.y, 0);

@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
 	public static bool IsPaused = false;
 	public GameObject PauseMenuUI;
+	public Slider CameraSensitivitySlider;
 
 	public void Resume()
 	{
+		CameraBehavior.camSens = CameraSensitivitySlider.value;
 		PauseMenuUI.SetActive(false);
 		IsPaused = false;
 	}
@@ -15,6 +18,11 @@ public class Menu : MonoBehaviour
 	{
 		PauseMenuUI.SetActive(true);
 		IsPaused = true;
+	}
+
+	public void AdjustCameraSensitivity(float sliderValue)
+	{
+		CameraBehavior.camSens = CameraSensitivitySlider.value;
 	}
 
 	public void Quit()

@@ -13,35 +13,28 @@ public class CameraBehavior : MonoBehaviour
     space : Moves camera on X and Z axis only.  So camera doesn't gain any height*/
 
 
-	float mainSpeed = 10.0f; //regular speed
-	float shiftAdd = 50f; //multiplied by how long shift is held.  Basically running
-	float maxShift = 500.0f; //Maximum speed when holdin gshift
-	float camSens; //How sensitive it with mouse
+	float mainSpeed = 20.0f; //regular speed
+	float shiftAdd = 100f; //multiplied by how long shift is held.  Basically running
+	float maxShift = 1000.0f; //Maximum speed when holdin gshift
+	public static float camSens = 0.25f; //How sensitive it with mouse
 	private Vector3 lastMouse = new Vector3(255, 255, 255); //kind of in the middle of the screen, rather than at the top (play)
 	private Vector3 lastControlPoint = new Vector3(255, 255, 255); //for when the user freezes their camera angle
 	private float totalRun = 1.0f;
 
 	void Update()
 	{
-		// don't do anything if game is paused
 		if (Menu.IsPaused)
 		{
 			camSens = 0f;
 		}
-		else
-		{
-			camSens = 0.5f;
-		}
+		//Mouse camera angle
 		lastMouse = Input.mousePosition - lastMouse;
 		lastMouse = new Vector3(-lastMouse.y * camSens, lastMouse.x * camSens, 0);
 		lastMouse = new Vector3(transform.eulerAngles.x + lastMouse.x, transform.eulerAngles.y + lastMouse.y, 0);
 		transform.eulerAngles = lastMouse;
 		lastMouse = Input.mousePosition;
-		//Mouse  camera angle done.  
-
 		//get user input if we aren't paused
-		if(!Menu.IsPaused)
-		{
+		if(!Menu.IsPaused) {
 			Vector3 p = GetBaseInput();
 			if (Input.GetKey(KeyCode.LeftShift))
 			{

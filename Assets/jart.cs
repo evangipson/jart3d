@@ -39,7 +39,7 @@ public class Jart : MonoBehaviour
 		// skew that renderer all up if we want it skewed
 		if (skew)
 		{
-			sr.transform.rotation = new Quaternion(Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360), 0);
+			sr.transform.rotation = new Quaternion(Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360), Utils.Randomizer.Next(-360, 360));
 		}
 
 		return sprite;
@@ -96,7 +96,7 @@ public class Jart : MonoBehaviour
 		for (int i = 0; i < jartletAmount; i++)
 		{
 			jartlets.Add(createShape(
-				Utils.GetRandomArrayItem(Constants.PossibleColors),
+				Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[Constants.ColorPaletteIndex]),
 				// change the length, width, and depth based off of how big the cube is.
 				Utils.Randomizer.Next(Constants.JartletMinSize, Constants.JartletMaxSize) * Utils.Randomizer.Next(1, Constants.JartletMaxScale),
 				Utils.Randomizer.Next(Constants.JartletMinSize, Constants.JartletMaxSize) * Utils.Randomizer.Next(1, Constants.JartletMaxScale),
@@ -116,7 +116,7 @@ public class Jart : MonoBehaviour
 	private void createJartboard(int jartboardIndex)
 	{
 		jartBoards.Add(createShape(
-			Utils.GetRandomArrayItem(Constants.PossibleColors),
+			Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[Constants.ColorPaletteIndex]),
 			Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize) * Utils.Randomizer.Next(1, Constants.JartboardMaxScale),
 			Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize) * Utils.Randomizer.Next(1, Constants.JartboardMaxScale),
 			Utils.Randomizer.Next(Constants.JartboardMinSize, Constants.JartboardMaxSize) * Utils.Randomizer.Next(1, Constants.JartboardMaxScale),

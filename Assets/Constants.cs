@@ -6,15 +6,6 @@
 /// </summary>
 public static class Constants
 {
-	// TODO: Fill with nice colors, probably implement pallettes
-	public static Color[] PossibleColors = {
-		Color.red,
-		Color.blue,
-		Color.green,
-		Color.cyan,
-		Color.magenta,
-		Color.yellow
-	};
 	public static string[] PossibleSpriteShaders =
 	{
 		"Sprites/Default",
@@ -34,4 +25,6 @@ public static class Constants
 	public static int JartletMinSize = (int)(JartboardMinSize * 0.8);
 	public static int JartletMaxSize = (int)(JartboardMaxSize * 0.8);
 	public static int JartletMaxScale = Utils.Randomizer.Next(2, 5);
+	// pick out the color palette
+	public static int ColorPaletteIndex = Utils.Randomizer.Next(0, Colors.PossibleColorPalettes.Count - 1);
 }

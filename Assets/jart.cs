@@ -52,16 +52,7 @@ public class Jart : MonoBehaviour
 	private GameObject createShape(Color color, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0, bool skew = false)
 	{
 		int shapeRoll = Utils.Randomizer.Next(0, 4);
-		GameObject shape = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		// shape can be capsule or sphere randomly
-		if (shapeRoll > 1)
-		{
-			shape = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-		}
-		else if(shapeRoll > 2)
-		{
-			shape = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-		}
+		GameObject shape = GameObject.CreatePrimitive(Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes));
 		Renderer shapeRenderer = shape.GetComponent<Renderer>(); // grab the shape's renderer, don't create a new one
 
 		// make sure the color is pure by using the mask shader
@@ -130,10 +121,10 @@ public class Jart : MonoBehaviour
 
 	public void Start()
 	{
-		int totalJartletsPerJart = Utils.Randomizer.Next(1, 15);
+		int totalJartletsPerJart = Utils.Randomizer.Next(1, 25);
 		for (int i = 0; i < Constants.TotalJarts; i++)
 		{
-			totalJartletsPerJart = Utils.Randomizer.Next(1, 15);
+			totalJartletsPerJart = Utils.Randomizer.Next(1, 25);
 			createJartboard(i);
 			createJartlets(totalJartletsPerJart, i);
 		}

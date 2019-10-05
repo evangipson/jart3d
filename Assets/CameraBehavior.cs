@@ -23,8 +23,8 @@ public class CameraBehavior : MonoBehaviour
 
 	void Update()
 	{
-		// left control will "Freeze" camera
-		if (Input.GetKey(KeyCode.LeftControl))
+		// don't do anything if game is paused
+		if (Menu.IsPaused)
 		{
 			camSens = 0f;
 		}
@@ -39,37 +39,38 @@ public class CameraBehavior : MonoBehaviour
 		lastMouse = Input.mousePosition;
 		//Mouse  camera angle done.  
 
-		//Keyboard commands
-		float f = 0.0f;
-		Vector3 p = GetBaseInput();
-		if (Input.GetKey(KeyCode.LeftShift))
+		//get user input if we aren't paused
+		if(!Menu.IsPaused)
 		{
-			totalRun += Time.deltaTime;
-			p = p * totalRun * shiftAdd;
-			p.x = Mathf.Clamp(p.x, -maxShift, maxShift);
-			p.y = Mathf.Clamp(p.y, -maxShift, maxShift);
-			p.z = Mathf.Clamp(p.z, -maxShift, maxShift);
-		}
-		else
-		{
-			totalRun = Mathf.Clamp(totalRun * 0.5f, 1f, 1000f);
-			p = p * mainSpeed;
-		}
+			Vector3 p = GetBaseInput();
+			if (Input.GetKey(KeyCode.LeftShift))
+			{
+				totalRun += Time.deltaTime;
+				p = p * totalRun * shiftAdd;
+				p.x = Mathf.Clamp(p.x, -maxShift, maxShift);
+				p.y = Mathf.Clamp(p.y, -maxShift, maxShift);
+				p.z = Mathf.Clamp(p.z, -maxShift, maxShift);
+			}
+			else
+			{
+				totalRun = Mathf.Clamp(totalRun * 0.5f, 1f, 1000f);
+				p = p * mainSpeed;
+			}
 
-		p = p * Time.deltaTime;
-		Vector3 newPosition = transform.position;
-		if (Input.GetKey(KeyCode.Space))
-		{ //If player wants to move on X and Z axis only
-			transform.Translate(p);
-			newPosition.x = transform.position.x;
-			newPosition.z = transform.position.z;
-			transform.position = newPosition;
+			p = p * Time.deltaTime;
+			Vector3 newPosition = transform.position;
+			if (Input.GetKey(KeyCode.Space))
+			{ //If player wants to move on X and Z axis only
+				transform.Translate(p);
+				newPosition.x = transform.position.x;
+				newPosition.z = transform.position.z;
+				transform.position = newPosition;
+			}
+			else
+			{
+				transform.Translate(p);
+			}
 		}
-		else
-		{
-			transform.Translate(p);
-		}
-
 	}
 
 	private Vector3 GetBaseInput()

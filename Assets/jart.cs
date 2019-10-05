@@ -130,10 +130,10 @@ public class Jart : MonoBehaviour
 
 	public void Start()
 	{
-		int totalJartletsPerJart = Utils.Randomizer.Next(1, 50);
+		int totalJartletsPerJart = Utils.Randomizer.Next(1, 15);
 		for (int i = 0; i < Constants.TotalJarts; i++)
 		{
-			totalJartletsPerJart = Utils.Randomizer.Next(1, 50);
+			totalJartletsPerJart = Utils.Randomizer.Next(1, 15);
 			createJartboard(i);
 			createJartlets(totalJartletsPerJart, i);
 		}

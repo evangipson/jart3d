@@ -7,7 +7,7 @@ public class SetCameraPosition : MonoBehaviour
 		Camera camera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 		camera.backgroundColor = Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[Jart.ColorPaletteIndex]);
 		camera.clearFlags = CameraClearFlags.SolidColor;
-		camera.transform.position = new Vector3(Constants.JartCubeSize * 0.5f, Constants.JartCubeSize * 0.5f, Constants.JartCubeSize * 0.5f);
+		camera.transform.position = new Vector3(0, 0, 0);
 	}
 
 	// Start is called before the first frame update

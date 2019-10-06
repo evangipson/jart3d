@@ -9,7 +9,6 @@ public class Menu : MonoBehaviour
 
 	public void Resume()
 	{
-		Oscillator.ToggleSongQuiet();
 		CameraBehavior.camSens = CameraSensitivitySlider.value;
 		PauseMenuUI.SetActive(false);
 		IsPaused = false;
@@ -18,7 +17,6 @@ public class Menu : MonoBehaviour
 
 	public void Pause()
 	{
-		Oscillator.ToggleSongQuiet();
 		PauseMenuUI.SetActive(true);
 		IsPaused = true;
 		Cursor.visible = true;
@@ -57,6 +55,7 @@ public class Menu : MonoBehaviour
 	{
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
+			MusicPlayer.ToggleSongQuiet();
 			if (!IsPaused)
 			{
 				Pause();

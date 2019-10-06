@@ -21,12 +21,13 @@ public class Jart : MonoBehaviour
 	private static Quaternion jartletSkew;
 	private static Color32 jartletColor;
 	private static PrimitiveType jartletType;
+	private static MusicPlayer mp;
 
 	/**
 	 * Creates a sprite. Intended to be used to create Jartlets
 	 * and the Jartboard, which is returned by default (using
 	 * default parameters). */
-	private static Sprite createSprite(Color color, int width = 1, int height = 1, float originX = 0, float originY = 0, int zIndex = -1, bool skew = false)
+	private Sprite createSprite(Color color, int width = 1, int height = 1, float originX = 0, float originY = 0, int zIndex = -1, bool skew = false)
 	{
 		GameObject go = new GameObject();
 		SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
@@ -209,6 +210,11 @@ public class Jart : MonoBehaviour
 		ColorPaletteIndex = Utils.Randomizer.Next(0, Colors.PossibleColorPalettes.Count - 1);
 		// define how many jartboards this jart will have
 		totalJartboards = Utils.Randomizer.Next(10, 30);
+		// clear out the music player if it exists
+		if (mp != null)
+		{
+			mp.DestroyMusicPlayer();
+		}
 	}
 
 	public static void NewJart()
@@ -221,6 +227,8 @@ public class Jart : MonoBehaviour
 			createJartboard();
 			createJartlets(totalJartletsPerJart, i);
 		}
+		// when you add the oscillator, it will start playing
+		mp = new GameObject("Music Player").AddComponent<MusicPlayer>();
 	}
 
 	public void Start()

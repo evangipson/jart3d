@@ -4,7 +4,8 @@ using UnityEngine;
 
 /// <summary>
 /// The class responsible for controlling the music in jart.
-/// Huge shout out to https://www.youtube.com/watch?v=GqHFGMy_51c
+/// Huge shout out to https://www.youtube.com/watch?v=GqHFGMy_51c.
+/// Expects a monobehavior upon creation to access unity things.
 /// </summary>
 public class Oscillator : MonoBehaviour
 {
@@ -13,73 +14,29 @@ public class Oscillator : MonoBehaviour
 	public double samplingFreq = 48000f;
 	public double frequency = 440.0f;
 	public float gain = 0;
-	public static float volume = Constants.MusicVolume;
 	public float attack;
 	public float release;
-	private static bool isQuiet = false;
 	public int waveIndex = 0;
 	public float cutoffFrequencyMod;
-	public int scaleTones;
-	public float[] possibleFrequencies;
-	public int[] scaleIntervals;
 
 	private AudioEchoFilter echoFilter;
 	private AudioReverbFilter reverbFilter;
 	private AudioLowPassFilter lowPassFilter;
-
-	private int[] buildScaleIntervals()
-	{
-		scaleTones = Utils.Randomizer.Next(3, 16);
-		int[] localScaleIntervals = new int[scaleTones];
-		for (int i = 0; i < scaleTones; i++)
-		{
-			if (i == 0)
-			{
-				localScaleIntervals[0] = 1;
-			}
-			else
-			{
-				// how many half steps between each interval?
-				localScaleIntervals[i] = localScaleIntervals[i - 1] + Utils.Randomizer.Next(1, 4);
-			}
-		}
-		return localScaleIntervals;
-	}
-
-	private float[] buildScaleFrequencies()
-	{
-		scaleIntervals = buildScaleIntervals();
-		float[] scaleFrequencies = new float[scaleIntervals.Length];
-		for (int i = 0; i < scaleIntervals.Length; i++)
-		{
-			if (i == 0)
-			{
-				// set the base tone
-				scaleFrequencies[0] = Utils.Randomizer.Next(13000, 52000) * 0.01f;
-			}
-			else
-			{
-				// calculate the frequency based on the interval and base note
-				// with the small chance to serve up something deliciously fucked up
-				scaleFrequencies[i] = scaleFrequencies[0] * Mathf.Pow(1.059463f, scaleIntervals[i]);
-			}
-		}
-		return scaleFrequencies;
-	}
+	private AudioSource audioSource;
 
 	private void createNewNoteProperties()
 	{
 		// change around the reverb
-		reverbFilter.reverbDelay = Utils.Randomizer.Next(0, 250);
-		reverbFilter.reverbLevel = Utils.Randomizer.Next(100, 2000);
+		reverbFilter.reverbDelay = Utils.Randomizer.Next(20, 70) * 0.01f;
+		reverbFilter.reverbLevel = Utils.Randomizer.Next(1000, 2000);
 		cutoffFrequencyMod = Utils.Randomizer.Next(200, 1000);
 		// change around the echo
 		echoFilter.delay = Utils.Randomizer.Next(0, 1000);
-		echoFilter.decayRatio = Utils.Randomizer.Next(0, 50) * 0.01f;
-		frequency = Utils.GetRandomArrayItem(possibleFrequencies);
+		echoFilter.decayRatio = Utils.Randomizer.Next(0, 10) * 0.1f;
+		frequency = Utils.GetRandomArrayItem(MusicPlayer.possibleFrequencies);
 		// now the new envelope
-		attack = Utils.Randomizer.Next(1, 50) * 0.0006f;
-		release = Utils.Randomizer.Next(1, 50) * 0.0006f;
+		attack = Utils.Randomizer.Next(1, 20) * 0.005f;
+		release = Utils.Randomizer.Next(1, 20) * 0.005f;
 		// reset gain
 		gain = 0;
 	}
@@ -89,8 +46,6 @@ public class Oscillator : MonoBehaviour
 	/// </summary>
 	public void StartNewSong()
 	{
-		// get a new scale
-		possibleFrequencies = buildScaleFrequencies();
 		// we currently have 3 waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound
 		waveIndex = Utils.Randomizer.Next(0, 4);
@@ -101,7 +56,7 @@ public class Oscillator : MonoBehaviour
 
 	private IEnumerator waitAndStartNewNote()
 	{
-		yield return new WaitForSeconds(Utils.Randomizer.Next(1000, 10000) / 1000);
+		yield return new WaitForSeconds(Utils.Randomizer.Next(50, 5000) / 1000);
 		createNewNoteProperties();
 
 		// now set up the envelope
@@ -128,9 +83,9 @@ public class Oscillator : MonoBehaviour
 	{
 		yield return new WaitForSeconds(0.1f);
 		gain += attack;
-		if (gain >= volume)
+		if (gain >= MusicPlayer.volume)
 		{
-			gain = volume;
+			gain = MusicPlayer.volume;
 			StartCoroutine(stopEnvelope());
 		}
 		else
@@ -139,26 +94,27 @@ public class Oscillator : MonoBehaviour
 		}
 	}
 
-	void Start()
+	public void DestroyOscillator()
 	{
-		echoFilter = FindObjectOfType<AudioEchoFilter>();
-		reverbFilter = FindObjectOfType<AudioReverbFilter>();
-		lowPassFilter = FindObjectOfType<AudioLowPassFilter>();
-		StartNewSong();
+		Destroy(echoFilter);
+		Destroy(reverbFilter);
+		Destroy(lowPassFilter);
+		Destroy(audioSource);
+		Destroy(gameObject);
+		Destroy(this);
 	}
 
-	public static void ToggleSongQuiet()
+	void Start()
 	{
-		if(!isQuiet)
-		{
-			volume = 0.05f;
-			isQuiet = true;
-		}
-		else
-		{
-			volume = Constants.MusicVolume;
-			isQuiet = false;
-		}
+		// add audio source first because filters depend on it
+		audioSource = gameObject.AddComponent<AudioSource>();
+		audioSource.volume = Constants.MusicVolume;
+		// when you add the oscillator, it will start playing
+		echoFilter = gameObject.AddComponent<AudioEchoFilter>();
+		reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
+		lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
+		// now that we have all the filters and sources, start playing notes!
+		StartNewSong();
 	}
 
 	private void playTriangleWave(float[] data, int channels)
@@ -292,7 +248,7 @@ public class Oscillator : MonoBehaviour
 		}
 		else if(waveIndex == 2)
 		{
-			playWhiteNoiseWave(data, channels);
+			playEvanWave(data, channels);
 		}
 		else
 		{

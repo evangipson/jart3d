@@ -84,7 +84,7 @@ public class MusicPlayer : MonoBehaviour
 		// get a new scale
 		possibleFrequencies = buildScaleFrequencies();
 		// generate new oscillators
-		numberOfOscillators = Utils.Randomizer.Next(1, 5);
+		numberOfOscillators = Utils.Randomizer.Next(2, 6);
 		for (int i = 0; i < numberOfOscillators; i++)
 		{
 			// when you add the oscillator, it will start playing

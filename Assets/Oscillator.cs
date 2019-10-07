@@ -15,6 +15,7 @@ public class Oscillator : MonoBehaviour
 	public double frequency = 440.0f;
 	public float gain = 0;
 	public float attack;
+	public float sustain;
 	public float release;
 	public int waveIndex = 0;
 	public float cutoffFrequencyMod;
@@ -36,6 +37,7 @@ public class Oscillator : MonoBehaviour
 		frequency = Utils.GetRandomArrayItem(MusicPlayer.possibleFrequencies);
 		// now the new envelope
 		attack = Utils.Randomizer.Next(1, 20) * 0.005f;
+		sustain = Utils.Randomizer.Next(250, 2000); // in ms
 		release = Utils.Randomizer.Next(1, 20) * 0.005f;
 		// reset gain
 		gain = 0;
@@ -48,7 +50,11 @@ public class Oscillator : MonoBehaviour
 	{
 		// we currently have 3 waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound
-		waveIndex = Utils.Randomizer.Next(0, 4);
+		waveIndex = Utils.Randomizer.Next(0, 5);
+		if(waveIndex == 2 || waveIndex == 3 || waveIndex == 4)
+		{
+			audioSource.volume = 0.0005f; // noise & sines need to be quiiiiet
+		}
 
 		// now set up the timer for the next note
 		StartCoroutine(waitAndStartNewNote());
@@ -90,6 +96,8 @@ public class Oscillator : MonoBehaviour
 		}
 		else
 		{
+			// apply sustain by waiting to decrease note gain
+			yield return new WaitForSeconds(sustain / 1000);
 			StartCoroutine(startEnvelope());
 		}
 	}
@@ -115,6 +123,15 @@ public class Oscillator : MonoBehaviour
 		lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
 		// now that we have all the filters and sources, start playing notes!
 		StartNewSong();
+	}
+
+	private void Update()
+	{
+		// don't let the synth get louder than the volume
+		if(gain > MusicPlayer.volume)
+		{
+			gain = MusicPlayer.volume;
+		}
 	}
 
 	private void playTriangleWave(float[] data, int channels)
@@ -184,26 +201,22 @@ public class Oscillator : MonoBehaviour
 		}
 	}
 
-	private void playWhiteNoiseWave(float[] data, int channels)
+	private void playPinkNoiseWave(float[] data, int channels)
 	{
 		cutoffFrequencyMod = 20;
-		// increment the frequency so we know where to move on the x-axis of the waveform
-		increment = Utils.Randomizer.Next(0, 880) * Mathf.PI / samplingFreq;
-		// iterate through the data to set the position of the phase (or y-axis) of the waveform
-		for (int i = 0; i < data.Length; i += channels)
+		int offset = 0;
+		for (int i = 0; i < data.Length; i++)
 		{
-			phase += increment;
-			data[i] = (float)phase * 0.1f;
-			// play sound in both speakers if they exist
-			if (channels == 2)
-			{
-				data[i + 1] = data[i];
-			}
+			data[i] = (float)((Utils.Randomizer.Next(1, 100) * 0.01f) * 2.0 - 1.0 + offset);
+		}
+	}
 
-			if (phase > (2.0 * Mathf.PI))
-			{
-				phase = 0f;
-			}
+	private void playWhiteNoiseWave(float[] data, int channels)
+	{
+		int offset = 0;
+		for (int i = 0; i < data.Length; i++)
+		{
+			data[i] = (float)((Utils.Randomizer.Next(1, 100) * 0.01f) * 2.0 - 1.0 + offset);
 		}
 	}
 
@@ -238,6 +251,7 @@ public class Oscillator : MonoBehaviour
 
 	private void OnAudioFilterRead(float[] data, int channels)
 	{
+
 		if(waveIndex == 0)
 		{
 			playEvanWave(data, channels);
@@ -248,7 +262,15 @@ public class Oscillator : MonoBehaviour
 		}
 		else if(waveIndex == 2)
 		{
-			playEvanWave(data, channels);
+			playWhiteNoiseWave(data, channels);
+		}
+		else if (waveIndex == 3)
+		{
+			playPinkNoiseWave(data, channels);
+		}
+		else if (waveIndex == 4)
+		{
+			playSineWave(data, channels);
 		}
 		else
 		{

@@ -67,16 +67,32 @@ public class Jart : MonoBehaviour
 	 * Creates a shape. Intended to be used to create Jartlets
 	 * and the Jartboard, which is returned by default (using
 	 * default parameters). */
-	private static GameObject createShape(Color color, PrimitiveType typeOfShape, Quaternion skew, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0)
+	private static GameObject createShape(Color32 color, PrimitiveType typeOfShape, Quaternion skew, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0)
 	{
 		int shapeRoll = Utils.Randomizer.Next(0, 4);
-		GameObject shape = GameObject.CreatePrimitive(typeOfShape);
-		Renderer shapeRenderer = shape.GetComponent<Renderer>(); // grab the shape's renderer, don't create a new one
+		GameObject shape;
 
+		// if the type is a quad or plane, we need to do special stuff to make it "3d"
+		if (typeOfShape == PrimitiveType.Quad || typeOfShape == PrimitiveType.Plane)
+		{
+			// fake the planes by making cubes that are slim
+			shape = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			shape.transform.localScale = new Vector3(width, height, 2);
+		}
+		else
+		{
+			shape = GameObject.CreatePrimitive(typeOfShape);
+			shape.transform.localScale = new Vector3(width, height, depth);
+		}
+		// grab the shape's renderer, don't create a new one
+		Renderer shapeRenderer = shape.GetComponent<Renderer>();
 		// make sure the color is pure by using the mask shader
 		shapeRenderer.material.shader = Shader.Find(Utils.GetRandomArrayItem(Constants.Possible3dShaders));
 		// set a color after shader
 		shapeRenderer.material.color = color;
+		// set the position of the object
+		shape.transform.position = new Vector3(originX, originY, originZ);
+		shape.transform.rotation = skew;
 
 		// set the rendering & shape layers
 		//shapeRenderer.sortingOrder = zIndex;
@@ -84,10 +100,6 @@ public class Jart : MonoBehaviour
 		// make sure masking actually works
 		//mr.maskInteraction = SpriteMaskInteraction.VisibleOutsideMask;
 
-		// set the position of the object
-		shape.transform.position = new Vector3(originX, originY, originZ);
-		shape.transform.localScale = new Vector3(width, height, depth);
-		shape.transform.rotation = skew;
 		return shape;
 	}
 

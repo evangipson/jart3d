@@ -13,8 +13,9 @@ public static class Constants
 	};
 	public static string[] Possible3dShaders =
 	{
-		//"Standard (Specular setup)"
-		"Unlit/Color"
+		//"Skybox/Cubemap",
+		//"Unlit/Color",
+		"Custom/ToonShader"
 	};
 	public static PrimitiveType[] PossiblePrimitiveTypes =
 	{

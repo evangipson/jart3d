@@ -6,8 +6,10 @@ public class MusicPlayer : MonoBehaviour
 {
 	private List<Oscillator> oscList = new List<Oscillator>();
 	public int scaleTones;
+	public float noteTime;
 	public static float[] possibleFrequencies;
 	public static int[] scaleIntervals;
+	public static float[] possibleTimings;
 	public static float volume = Constants.MusicVolume;
 	private static bool isQuiet = false;
 	public int numberOfOscillators;
@@ -59,11 +61,30 @@ public class MusicPlayer : MonoBehaviour
 			else
 			{
 				// calculate the frequency based on the interval and base note
-				// with the small chance to serve up something deliciously fucked up
 				scaleFrequencies[i] = scaleFrequencies[0] * Mathf.Pow(1.059463f, scaleIntervals[i]);
 			}
 		}
 		return scaleFrequencies;
+	}
+
+	public float[] buildNoteTimings()
+	{
+		noteTime = Utils.Randomizer.Next(3, 12);
+		float[] localNoteTimes = new float[4];
+		for (int i = 0; i < localNoteTimes.Length - 1; i++)
+		{
+			// quarter note at 60bpm is 1 second
+			if (i == 0)
+			{
+				localNoteTimes[i] = Utils.Randomizer.Next(150, 500) * Mathf.PI; // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
+			}
+			else
+			{
+				//localNoteTimes[i] = localNoteTimes[i - 1] * (Utils.Randomizer.Next(1, 30) * 0.1f);
+				localNoteTimes[i] = localNoteTimes[i - 1] * Mathf.PI;
+			}
+		}
+		return localNoteTimes;
 	}
 
 	public void DestroyMusicPlayer()
@@ -81,8 +102,9 @@ public class MusicPlayer : MonoBehaviour
 			oscList[i].DestroyOscillator();
 		}
 		oscList.Clear();
-		// get a new scale
+		// get a new scale & timings
 		possibleFrequencies = buildScaleFrequencies();
+		possibleTimings = buildNoteTimings();
 		// generate new oscillators
 		numberOfOscillators = Utils.Randomizer.Next(2, 6);
 		for (int i = 0; i < numberOfOscillators; i++)

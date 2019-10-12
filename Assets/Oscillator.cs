@@ -27,18 +27,19 @@ public class Oscillator : MonoBehaviour
 
 	private void createNewNoteProperties()
 	{
+		float noteTime = Utils.GetRandomArrayItem(MusicPlayer.possibleTimings);
 		// change around the reverb
 		reverbFilter.reverbDelay = Utils.Randomizer.Next(20, 70) * 0.01f;
 		reverbFilter.reverbLevel = Utils.Randomizer.Next(1000, 2000);
 		cutoffFrequencyMod = Utils.Randomizer.Next(200, 1000);
 		// change around the echo
-		echoFilter.delay = Utils.Randomizer.Next(0, 1000);
+		echoFilter.delay = Utils.Randomizer.Next(1, 4) * noteTime;
 		echoFilter.decayRatio = Utils.Randomizer.Next(0, 10) * 0.1f;
 		frequency = Utils.GetRandomArrayItem(MusicPlayer.possibleFrequencies);
 		// now the new envelope
-		attack = Utils.Randomizer.Next(1, 20) * 0.005f;
-		sustain = Utils.Randomizer.Next(250, 2000); // in ms
-		release = Utils.Randomizer.Next(1, 20) * 0.005f;
+		attack = Utils.Randomizer.Next(1, 200) * 0.02f;
+		sustain = noteTime; // in ms
+		release = Utils.Randomizer.Next(1, 200) * 0.02f;
 		// reset gain
 		gain = 0;
 	}
@@ -51,11 +52,18 @@ public class Oscillator : MonoBehaviour
 		// we currently have 3 waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound
 		waveIndex = Utils.Randomizer.Next(0, 5);
-		if(waveIndex == 2 || waveIndex == 3 || waveIndex == 4)
+		if(waveIndex == 3 || waveIndex == 4)
 		{
-			audioSource.volume = 0.0005f; // noise & sines need to be quiiiiet
+			audioSource.volume = 0.006f; // noise need to be quiiiiet
 		}
-
+		else if(waveIndex == 2)
+		{
+			audioSource.volume = 0.008f; // sine needs to be a lil less quiiiiet
+		}
+		else
+		{
+			audioSource.volume = 0.07f; // everything else is normal volume
+		}
 		// now set up the timer for the next note
 		StartCoroutine(waitAndStartNewNote());
 	}
@@ -164,7 +172,7 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			data[i] = phase % 3 == 0 ? (float)(gain * (double)Mathf.Atan2((float)phase, 0.5f)) : (float)-(gain * (double)Mathf.Atan((float)phase));
+			data[i] = phase % 3 == 0 ? (float)(gain * (double)Mathf.Cos((float)phase)) : (float)-(gain * (double)Mathf.Atan((float)phase));
 			cutoffFrequencyMod = (float)phase * 100 > 0 ? (float)phase * 100 : 1;
 			// play sound in both speakers if they exist
 			if (channels == 2)
@@ -203,7 +211,7 @@ public class Oscillator : MonoBehaviour
 
 	private void playPinkNoiseWave(float[] data, int channels)
 	{
-		cutoffFrequencyMod = 20;
+		cutoffFrequencyMod = 10;
 		int offset = 0;
 		for (int i = 0; i < data.Length; i++)
 		{
@@ -254,7 +262,7 @@ public class Oscillator : MonoBehaviour
 
 		if(waveIndex == 0)
 		{
-			playEvanWave(data, channels);
+			playTriangleWave(data, channels);
 		}
 		else if(waveIndex == 1)
 		{
@@ -262,11 +270,18 @@ public class Oscillator : MonoBehaviour
 		}
 		else if(waveIndex == 2)
 		{
-			playWhiteNoiseWave(data, channels);
+			playSineWave(data, channels);
 		}
 		else if (waveIndex == 3)
 		{
-			playPinkNoiseWave(data, channels);
+			if(Utils.Randomizer.Next(0, 10) > 5)
+			{
+				playWhiteNoiseWave(data, channels);
+			}
+			else
+			{
+				playPinkNoiseWave(data, channels);
+			}
 		}
 		else if (waveIndex == 4)
 		{

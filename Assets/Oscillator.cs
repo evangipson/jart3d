@@ -12,7 +12,7 @@ public class Oscillator : MonoBehaviour
 	public double increment = 0f;
 	public double phase = 0f;
 	public double samplingFreq = 48000f;
-	public double frequency = 440.0f;
+	public double frequency;
 	public float gain = 0;
 	public float attack;
 	public float sustain;
@@ -59,6 +59,10 @@ public class Oscillator : MonoBehaviour
 		else if(waveIndex == 2)
 		{
 			audioSource.volume = 0.008f; // sine needs to be a lil less quiiiiet
+		}
+		else if(waveIndex == 0)
+		{
+			audioSource.volume = 0.008f; // evan waves need to be quiet too
 		}
 		else
 		{
@@ -262,7 +266,7 @@ public class Oscillator : MonoBehaviour
 
 		if(waveIndex == 0)
 		{
-			playTriangleWave(data, channels);
+			playEvanWave(data, channels);
 		}
 		else if(waveIndex == 1)
 		{

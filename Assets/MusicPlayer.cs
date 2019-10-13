@@ -6,7 +6,6 @@ public class MusicPlayer : MonoBehaviour
 {
 	private List<Oscillator> oscList = new List<Oscillator>();
 	public int scaleTones;
-	public float noteTime;
 	public static float[] possibleFrequencies;
 	public static int[] scaleIntervals;
 	public static float[] possibleTimings;
@@ -30,7 +29,7 @@ public class MusicPlayer : MonoBehaviour
 
 	private int[] buildScaleIntervals()
 	{
-		scaleTones = Utils.Randomizer.Next(3, 12);
+		scaleTones = Utils.Randomizer.Next(5, 16);
 		int[] localScaleIntervals = new int[scaleTones];
 		for (int i = 0; i < scaleTones; i++)
 		{
@@ -69,7 +68,6 @@ public class MusicPlayer : MonoBehaviour
 
 	public float[] buildNoteTimings()
 	{
-		noteTime = Utils.Randomizer.Next(3, 12);
 		float[] localNoteTimes = new float[4];
 		for (int i = 0; i < localNoteTimes.Length - 1; i++)
 		{

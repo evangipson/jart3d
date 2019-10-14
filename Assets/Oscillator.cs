@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Timers;
 using UnityEngine;
 
@@ -25,6 +27,11 @@ public class Oscillator : MonoBehaviour
 	private AudioLowPassFilter lowPassFilter;
 	private AudioSource audioSource;
 
+	// define delegate to fill up method list with
+	private delegate void PlayWaveformMethod(float[] data, int channels);
+	// here's the method list for all waveforms
+	private List<PlayWaveformMethod> waveFormMethods = new List<PlayWaveformMethod>();
+
 	private void createNewNoteProperties()
 	{
 		float noteTime = Utils.GetRandomArrayItem(MusicPlayer.possibleTimings);
@@ -44,23 +51,17 @@ public class Oscillator : MonoBehaviour
 		gain = 0;
 	}
 
-	/// <summary>
-	/// Meant to be called by other classes to trigger a new song.
-	/// </summary>
-	public void StartNewSong()
+	private void adjustWaveVolume()
 	{
-		// we currently have 3 waves, so pick one
-		// note: random.Next is inclusive lower bound, exclusive high bound
-		waveIndex = Utils.Randomizer.Next(0, 5);
-		if(waveIndex == 3 || waveIndex == 4)
+		if (waveIndex == 3 || waveIndex == 4)
 		{
 			audioSource.volume = 0.006f; // noise need to be quiiiiet
 		}
-		else if(waveIndex == 2)
+		else if (waveIndex == 2)
 		{
 			audioSource.volume = 0.008f; // sine needs to be a lil less quiiiiet
 		}
-		else if(waveIndex == 0)
+		else if (waveIndex == 0)
 		{
 			audioSource.volume = 0.008f; // evan waves need to be quiet too
 		}
@@ -68,10 +69,46 @@ public class Oscillator : MonoBehaviour
 		{
 			audioSource.volume = 0.07f; // everything else is normal volume
 		}
+	}
+
+	public void DestroyOscillator()
+	{
+		Destroy(echoFilter);
+		Destroy(reverbFilter);
+		Destroy(lowPassFilter);
+		Destroy(audioSource);
+		Destroy(gameObject);
+		Destroy(this);
+	}
+
+	/// <summary>
+	/// Meant to be called by other classes to trigger a new song.
+	/// </summary>
+	public void StartNewSong()
+	{
+		// add audio source first because filters depend on it
+		audioSource = gameObject.AddComponent<AudioSource>();
+		audioSource.volume = Constants.MusicVolume;
+		// when you add the oscillator, it will start playing
+		echoFilter = gameObject.AddComponent<AudioEchoFilter>();
+		reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
+		lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
+		// Put all of our wave form methods in an accessible data structure
+		waveFormMethods.Add(playTriangleWave);
+		waveFormMethods.Add(playEvanWave);
+		waveFormMethods.Add(playSineWave);
+		waveFormMethods.Add(playPinkNoiseWave);
+		waveFormMethods.Add(playWhiteNoiseWave);
+		waveFormMethods.Add(playSquareWave);
+		// we currently have multiple possible waves, so pick one
+		// note: random.Next is inclusive lower bound, exclusive high bound
+		waveIndex = Utils.Randomizer.Next(0, waveFormMethods.Count);
+		adjustWaveVolume();
 		// now set up the timer for the next note
 		StartCoroutine(waitAndStartNewNote());
 	}
 
+	// A(D)SR methods
 	private IEnumerator waitAndStartNewNote()
 	{
 		yield return new WaitForSeconds(Utils.Randomizer.Next(50, 5000) / 1000);
@@ -114,38 +151,9 @@ public class Oscillator : MonoBehaviour
 		}
 	}
 
-	public void DestroyOscillator()
-	{
-		Destroy(echoFilter);
-		Destroy(reverbFilter);
-		Destroy(lowPassFilter);
-		Destroy(audioSource);
-		Destroy(gameObject);
-		Destroy(this);
-	}
-
-	void Start()
-	{
-		// add audio source first because filters depend on it
-		audioSource = gameObject.AddComponent<AudioSource>();
-		audioSource.volume = Constants.MusicVolume;
-		// when you add the oscillator, it will start playing
-		echoFilter = gameObject.AddComponent<AudioEchoFilter>();
-		reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
-		lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
-		// now that we have all the filters and sources, start playing notes!
-		StartNewSong();
-	}
-
-	private void Update()
-	{
-		// don't let the synth get louder than the volume
-		if(gain > MusicPlayer.volume)
-		{
-			gain = MusicPlayer.volume;
-		}
-	}
-
+	// Wave Methods
+	// note: when adding one, don't forget to put it in waveFormMethods,
+	// inside the Start() function.
 	private void playTriangleWave(float[] data, int channels)
 	{
 		// increment the frequency so we know where to move on the x-axis of the waveform
@@ -240,7 +248,7 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			if(gain * Mathf.Sin((float)phase) >= 0 * gain)
+			if (gain * Mathf.Sin((float)phase) >= 0 * gain)
 			{
 				data[i] = gain * Mathf.Sin((float)phase);
 			}
@@ -261,39 +269,24 @@ public class Oscillator : MonoBehaviour
 		}
 	}
 
+	// unity methods derived from MonoBehaviour
+	void Start()
+	{
+		// call the same function other classes will call to start the oscillator!
+		StartNewSong();
+	}
+
+	private void Update()
+	{
+		// don't let the synth get louder than the volume
+		if(gain > MusicPlayer.volume)
+		{
+			gain = MusicPlayer.volume;
+		}
+	}
+
 	private void OnAudioFilterRead(float[] data, int channels)
 	{
-
-		if(waveIndex == 0)
-		{
-			playEvanWave(data, channels);
-		}
-		else if(waveIndex == 1)
-		{
-			playTriangleWave(data, channels);
-		}
-		else if(waveIndex == 2)
-		{
-			playSineWave(data, channels);
-		}
-		else if (waveIndex == 3)
-		{
-			if(Utils.Randomizer.Next(0, 10) > 5)
-			{
-				playWhiteNoiseWave(data, channels);
-			}
-			else
-			{
-				playPinkNoiseWave(data, channels);
-			}
-		}
-		else if (waveIndex == 4)
-		{
-			playSineWave(data, channels);
-		}
-		else
-		{
-			playSquareWave(data, channels);
-		}
+		waveFormMethods[waveIndex](data, channels);
 	}
 }

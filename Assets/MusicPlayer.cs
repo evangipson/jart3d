@@ -9,7 +9,6 @@ public class MusicPlayer : MonoBehaviour
 	public static float[] possibleFrequencies;
 	public static int[] scaleIntervals;
 	public static float[] possibleTimings;
-	public static float volume = Constants.MusicVolume;
 	private static bool isQuiet = false;
 	public int numberOfOscillators;
 
@@ -17,12 +16,12 @@ public class MusicPlayer : MonoBehaviour
 	{
 		if (!isQuiet)
 		{
-			volume = Constants.MusicVolume * 0.5f;
+			Constants.MusicVolume = 0.5f;
 			isQuiet = true;
 		}
 		else
 		{
-			volume = Constants.MusicVolume;
+			Constants.MusicVolume = 1.0f;
 			isQuiet = false;
 		}
 	}
@@ -68,18 +67,17 @@ public class MusicPlayer : MonoBehaviour
 
 	public float[] buildNoteTimings()
 	{
-		float[] localNoteTimes = new float[4];
+		float[] localNoteTimes = new float[6];
 		for (int i = 0; i < localNoteTimes.Length - 1; i++)
 		{
 			// quarter note at 60bpm is 1 second
 			if (i == 0)
 			{
-				localNoteTimes[i] = Utils.Randomizer.Next(150, 500) * Mathf.PI; // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
+				localNoteTimes[i] = Utils.Randomizer.Next(250, 500); // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
 			}
 			else
 			{
-				//localNoteTimes[i] = localNoteTimes[i - 1] * (Utils.Randomizer.Next(1, 30) * 0.1f);
-				localNoteTimes[i] = localNoteTimes[i - 1] * Mathf.PI;
+				localNoteTimes[i] = localNoteTimes[i - 1] * 2;
 			}
 		}
 		return localNoteTimes;

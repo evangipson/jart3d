@@ -15,12 +15,12 @@ public class Oscillator : MonoBehaviour
 	public double phase = 0f;
 	public double samplingFreq = 48000f;
 	public double frequency;
-	public float gain = 0;
 	public float attack;
 	public float sustain;
 	public float release;
 	public int waveIndex = 0;
 	public float cutoffFrequencyMod;
+	private float maxVolume = 1f;
 
 	private AudioEchoFilter echoFilter;
 	private AudioReverbFilter reverbFilter;
@@ -38,36 +38,36 @@ public class Oscillator : MonoBehaviour
 		// change around the reverb
 		reverbFilter.reverbDelay = Utils.Randomizer.Next(20, 70) * 0.01f;
 		reverbFilter.reverbLevel = Utils.Randomizer.Next(1000, 2000);
-		cutoffFrequencyMod = Utils.Randomizer.Next(200, 1000);
+		cutoffFrequencyMod = Utils.Randomizer.Next(20, 1000);
+		lowPassFilter.cutoffFrequency = cutoffFrequencyMod;
+		lowPassFilter.lowpassResonanceQ = Utils.Randomizer.Next(1, 100) * 0.1f;
 		// change around the echo
 		echoFilter.delay = Utils.Randomizer.Next(1, 4) * noteTime;
 		echoFilter.decayRatio = Utils.Randomizer.Next(0, 10) * 0.1f;
 		frequency = Utils.GetRandomArrayItem(MusicPlayer.possibleFrequencies);
 		// now the new envelope
-		attack = Utils.Randomizer.Next(1, 200) * 0.02f;
-		sustain = noteTime; // in ms
-		release = Utils.Randomizer.Next(1, 200) * 0.02f;
-		// reset gain
-		gain = 0;
+		attack = Utils.Randomizer.Next(1, 10) * maxVolume * 0.5f; // in ms
+		sustain = noteTime / 1000; // in ms
+		release = attack; // in ms
 	}
 
 	private void adjustWaveVolume()
 	{
 		if (waveIndex == 3 || waveIndex == 4)
 		{
-			audioSource.volume = 0.006f; // noise need to be quiiiiet
+			maxVolume = 0.0005f; // noise need to be quiiiiet
 		}
 		else if (waveIndex == 2)
 		{
-			audioSource.volume = 0.008f; // sine needs to be a lil less quiiiiet
+			maxVolume = 0.001f; // sine needs to be a lil less quiiiiet
 		}
-		else if (waveIndex == 0)
+		else if (waveIndex == 1)
 		{
-			audioSource.volume = 0.008f; // evan waves need to be quiet too
+			maxVolume = 0.0002f; // evan waves need to be quiet too
 		}
 		else
 		{
-			audioSource.volume = 0.07f; // everything else is normal volume
+			maxVolume = 0.005f; // everything else is normal volume
 		}
 	}
 
@@ -88,7 +88,9 @@ public class Oscillator : MonoBehaviour
 	{
 		// add audio source first because filters depend on it
 		audioSource = gameObject.AddComponent<AudioSource>();
-		audioSource.volume = Constants.MusicVolume;
+		audioSource.volume = 0;
+		// adjust the audio source volume dependant on which wave we have
+		adjustWaveVolume();
 		// when you add the oscillator, it will start playing
 		echoFilter = gameObject.AddComponent<AudioEchoFilter>();
 		reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
@@ -103,7 +105,6 @@ public class Oscillator : MonoBehaviour
 		// we currently have multiple possible waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound
 		waveIndex = Utils.Randomizer.Next(0, waveFormMethods.Count);
-		adjustWaveVolume();
 		// now set up the timer for the next note
 		StartCoroutine(waitAndStartNewNote());
 	}
@@ -111,42 +112,43 @@ public class Oscillator : MonoBehaviour
 	// A(D)SR methods
 	private IEnumerator waitAndStartNewNote()
 	{
-		yield return new WaitForSeconds(Utils.Randomizer.Next(50, 5000) / 1000);
+		yield return new WaitForSeconds(Utils.GetRandomArrayItem(MusicPlayer.possibleTimings) / 1000);
 		createNewNoteProperties();
 
 		// now set up the envelope
+		audioSource.volume = 0;
 		StartCoroutine(startEnvelope());
 	}
 
 	private IEnumerator stopEnvelope()
 	{
-		yield return new WaitForSeconds(0.1f);
-		gain -= release;
-		if(gain <= 0)
+		audioSource.volume -= release;
+		if(audioSource.volume <= 0)
 		{
-			gain = 0;
+			audioSource.volume = 0;
 			// now set up the timer for the next note
 			StartCoroutine(waitAndStartNewNote());
 		}
 		else
 		{
+			yield return new WaitForSeconds(0.01f);
 			StartCoroutine(stopEnvelope());
 		}
 	}
 
 	private IEnumerator startEnvelope()
 	{
-		yield return new WaitForSeconds(0.1f);
-		gain += attack;
-		if (gain >= MusicPlayer.volume)
+		audioSource.volume += attack;
+		if (audioSource.volume >= maxVolume)
 		{
-			gain = MusicPlayer.volume;
+			audioSource.volume = maxVolume;
+			// apply sustain by waiting to decrease audiosource volume
+			yield return new WaitForSeconds(sustain);
 			StartCoroutine(stopEnvelope());
 		}
 		else
 		{
-			// apply sustain by waiting to decrease note gain
-			yield return new WaitForSeconds(sustain / 1000);
+			yield return new WaitForSeconds(0.01f);
 			StartCoroutine(startEnvelope());
 		}
 	}
@@ -162,7 +164,7 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			data[i] = (float)(gain * (double)Mathf.PingPong((float)phase, 1.0f));
+			data[i] = (float)(Constants.MusicVolume * (double)Mathf.PingPong((float)phase, 1.0f));
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -184,8 +186,8 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			data[i] = phase % 3 == 0 ? (float)(gain * (double)Mathf.Cos((float)phase)) : (float)-(gain * (double)Mathf.Atan((float)phase));
-			cutoffFrequencyMod = (float)phase * 100 > 0 ? (float)phase * 100 : 1;
+			data[i] = phase % 3 == 0 ? (float)(Constants.MusicVolume * (double)Mathf.Cos((float)phase)) : (float)-(Constants.MusicVolume * (double)Mathf.Atan((float)phase));
+			cutoffFrequencyMod = Utils.Randomizer.Next(150, 1000);
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -224,19 +226,43 @@ public class Oscillator : MonoBehaviour
 	private void playPinkNoiseWave(float[] data, int channels)
 	{
 		cutoffFrequencyMod = 10;
+		// increment the frequency so we know where to move on the x-axis of the waveform
+		increment = frequency * 2.0 * Mathf.PI / samplingFreq;
 		int offset = 0;
-		for (int i = 0; i < data.Length; i++)
+		phase += increment;
+		for (int i = 0; i < data.Length; i += channels)
 		{
-			data[i] = (float)((Utils.Randomizer.Next(1, 100) * 0.01f) * 2.0 - 1.0 + offset);
+			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0 + offset);
+			// play sound in both speakers if they exist
+			if (channels == 2)
+			{
+				data[i + 1] = data[i];
+			}
+			if (phase > (2.0 * Mathf.PI))
+			{
+				phase = 0f;
+			}
 		}
 	}
 
 	private void playWhiteNoiseWave(float[] data, int channels)
 	{
+		// increment the frequency so we know where to move on the x-axis of the waveform
+		increment = frequency * 2.0 * Mathf.PI / samplingFreq;
 		int offset = 0;
-		for (int i = 0; i < data.Length; i++)
+		phase += increment;
+		for (int i = 0; i < data.Length; i += channels)
 		{
-			data[i] = (float)((Utils.Randomizer.Next(1, 100) * 0.01f) * 2.0 - 1.0 + offset);
+			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0 + offset);
+			// play sound in both speakers if they exist
+			if (channels == 2)
+			{
+				data[i + 1] = data[i];
+			}
+			if (phase > (2.0 * Mathf.PI))
+			{
+				phase = 0f;
+			}
 		}
 	}
 
@@ -248,13 +274,13 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			if (gain * Mathf.Sin((float)phase) >= 0 * gain)
+			if (Constants.MusicVolume * Mathf.Sin((float)phase) >= 0 * Constants.MusicVolume)
 			{
-				data[i] = gain * Mathf.Sin((float)phase);
+				data[i] = Constants.MusicVolume * Mathf.Sin((float)phase);
 			}
 			else
 			{
-				data[i] = -gain * 0.6f;
+				data[i] = -Constants.MusicVolume * 0.6f;
 			}
 			// play sound in both speakers if they exist
 			if (channels == 2)
@@ -278,11 +304,7 @@ public class Oscillator : MonoBehaviour
 
 	private void Update()
 	{
-		// don't let the synth get louder than the volume
-		if(gain > MusicPlayer.volume)
-		{
-			gain = MusicPlayer.volume;
-		}
+		lowPassFilter.cutoffFrequency = cutoffFrequencyMod;
 	}
 
 	private void OnAudioFilterRead(float[] data, int channels)

@@ -40,30 +40,38 @@ public class Oscillator : MonoBehaviour
 		reverbFilter.reverbLevel = Utils.Randomizer.Next(1000, 2000);
 		cutoffFrequencyMod = Utils.Randomizer.Next(20, 1000);
 		lowPassFilter.cutoffFrequency = cutoffFrequencyMod;
-		lowPassFilter.lowpassResonanceQ = Utils.Randomizer.Next(1, 100) * 0.1f;
+		lowPassFilter.lowpassResonanceQ = Utils.Randomizer.Next(1, 40) * 0.1f;
+		if (waveIndex == 3 || waveIndex == 4)
+		{
+			lowPassFilter.lowpassResonanceQ = 1;
+		}
 		// change around the echo
 		echoFilter.delay = Utils.Randomizer.Next(1, 4) * noteTime;
 		echoFilter.decayRatio = Utils.Randomizer.Next(0, 10) * 0.1f;
 		frequency = Utils.GetRandomArrayItem(MusicPlayer.possibleFrequencies);
 		// now the new envelope
-		attack = Utils.Randomizer.Next(1, 10) * maxVolume * 0.5f; // in ms
+		attack = Utils.Randomizer.Next(1, 50) * 0.01f * maxVolume; // in ms
 		sustain = noteTime / 1000; // in ms
-		release = attack; // in ms
+		release = Utils.Randomizer.Next(1, 50) * 0.01f * maxVolume; // in ms
 	}
 
 	private void adjustWaveVolume()
 	{
-		if (waveIndex == 3 || waveIndex == 4)
+		if (waveIndex == 1)
 		{
-			maxVolume = 0.0005f; // noise need to be quiiiiet
+			maxVolume = 0.00006f; // evan waves need to be quiet too
 		}
 		else if (waveIndex == 2)
 		{
-			maxVolume = 0.001f; // sine needs to be a lil less quiiiiet
+			maxVolume = 0.0005f; // sine needs to be a lil less quiiiiet
 		}
-		else if (waveIndex == 1)
+		else if (waveIndex == 3)
 		{
-			maxVolume = 0.0002f; // evan waves need to be quiet too
+			maxVolume = 0.00002f; // white noise need to be waaay quiiiiet
+		}
+		else if (waveIndex == 4)
+		{
+			maxVolume = 0.0005f; // pink noise need to be quiiiiet
 		}
 		else
 		{
@@ -143,7 +151,7 @@ public class Oscillator : MonoBehaviour
 		{
 			audioSource.volume = maxVolume;
 			// apply sustain by waiting to decrease audiosource volume
-			yield return new WaitForSeconds(sustain);
+			yield return new WaitForSeconds(Utils.Randomizer.Next(1, 5) * sustain);
 			StartCoroutine(stopEnvelope());
 		}
 		else
@@ -225,43 +233,29 @@ public class Oscillator : MonoBehaviour
 
 	private void playPinkNoiseWave(float[] data, int channels)
 	{
+		frequency = Utils.Randomizer.Next(100, 500);
 		cutoffFrequencyMod = 10;
-		// increment the frequency so we know where to move on the x-axis of the waveform
-		increment = frequency * 2.0 * Mathf.PI / samplingFreq;
-		int offset = 0;
-		phase += increment;
 		for (int i = 0; i < data.Length; i += channels)
 		{
-			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0 + offset);
+			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0);
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
 				data[i + 1] = data[i];
-			}
-			if (phase > (2.0 * Mathf.PI))
-			{
-				phase = 0f;
 			}
 		}
 	}
 
 	private void playWhiteNoiseWave(float[] data, int channels)
 	{
-		// increment the frequency so we know where to move on the x-axis of the waveform
-		increment = frequency * 2.0 * Mathf.PI / samplingFreq;
-		int offset = 0;
-		phase += increment;
+		frequency = Utils.Randomizer.Next(100, 500);
 		for (int i = 0; i < data.Length; i += channels)
 		{
-			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0 + offset);
+			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0);
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
 				data[i + 1] = data[i];
-			}
-			if (phase > (2.0 * Mathf.PI))
-			{
-				phase = 0f;
 			}
 		}
 	}
@@ -305,6 +299,10 @@ public class Oscillator : MonoBehaviour
 	private void Update()
 	{
 		lowPassFilter.cutoffFrequency = cutoffFrequencyMod;
+		if (audioSource.volume > maxVolume)
+		{
+			audioSource.volume = maxVolume;
+		}
 	}
 
 	private void OnAudioFilterRead(float[] data, int channels)

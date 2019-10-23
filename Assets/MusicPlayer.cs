@@ -73,7 +73,7 @@ public class MusicPlayer : MonoBehaviour
 			// quarter note at 60bpm is 1 second
 			if (i == 0)
 			{
-				localNoteTimes[i] = Utils.Randomizer.Next(250, 500); // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
+				localNoteTimes[i] = Utils.Randomizer.Next(50, 250); // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
 			}
 			else
 			{

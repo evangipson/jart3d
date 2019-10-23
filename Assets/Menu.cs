@@ -55,7 +55,7 @@ public class Menu : MonoBehaviour
 	{
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
-			MusicPlayer.ToggleSongQuiet();
+			Jart.ToggleSongQuiet();
 			if (!IsPaused)
 			{
 				Pause();

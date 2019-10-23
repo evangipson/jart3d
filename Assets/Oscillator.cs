@@ -34,7 +34,7 @@ public class Oscillator : MonoBehaviour
 
 	private void createNewNoteProperties()
 	{
-		float noteTime = Utils.GetRandomArrayItem(MusicPlayer.possibleTimings);
+		float noteTime = Utils.GetRandomArrayItem(Jart.possibleTimings);
 		// change around the reverb
 		reverbFilter.reverbDelay = Utils.Randomizer.Next(20, 70) * 0.01f;
 		reverbFilter.reverbLevel = Utils.Randomizer.Next(1000, 2000);
@@ -48,7 +48,7 @@ public class Oscillator : MonoBehaviour
 		// change around the echo
 		echoFilter.delay = Utils.Randomizer.Next(1, 4) * noteTime;
 		echoFilter.decayRatio = Utils.Randomizer.Next(0, 10) * 0.1f;
-		frequency = Utils.GetRandomArrayItem(MusicPlayer.possibleFrequencies);
+		frequency = Utils.GetRandomArrayItem(Jart.possibleFrequencies);
 		// now the new envelope
 		attack = Utils.Randomizer.Next(1, 50) * 0.01f * maxVolume; // in ms
 		sustain = noteTime / 1000; // in ms
@@ -97,6 +97,13 @@ public class Oscillator : MonoBehaviour
 		// add audio source first because filters depend on it
 		audioSource = gameObject.AddComponent<AudioSource>();
 		audioSource.volume = 0;
+		audioSource.playOnAwake = false;
+		// make sure the audio source is 3d
+		audioSource.maxDistance = Constants.JartCubeSize * 0.5f;
+		audioSource.rolloffMode = AudioRolloffMode.Linear;
+		audioSource.spread = 360;
+		audioSource.spatialize = true;
+		audioSource.spatialBlend = 1.0f;
 		// adjust the audio source volume dependant on which wave we have
 		adjustWaveVolume();
 		// when you add the oscillator, it will start playing
@@ -120,7 +127,7 @@ public class Oscillator : MonoBehaviour
 	// A(D)SR methods
 	private IEnumerator waitAndStartNewNote()
 	{
-		yield return new WaitForSeconds(Utils.GetRandomArrayItem(MusicPlayer.possibleTimings) / 1000);
+		yield return new WaitForSeconds(Utils.GetRandomArrayItem(Jart.possibleTimings) / 1000);
 		createNewNoteProperties();
 
 		// now set up the envelope

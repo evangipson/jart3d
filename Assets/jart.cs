@@ -21,7 +21,83 @@ public class Jart : MonoBehaviour
 	private static Quaternion jartletSkew;
 	private static Color32 jartletColor;
 	private static PrimitiveType jartletType;
-	private static MusicPlayer mp;
+	private static List<Oscillator> oscList = new List<Oscillator>();
+	public static int scaleTones;
+	public static float[] possibleFrequencies;
+	public static int[] scaleIntervals;
+	public static float[] possibleTimings;
+	private static bool isQuiet = false;
+
+	public static void ToggleSongQuiet()
+	{
+		if (!isQuiet)
+		{
+			Constants.MusicVolume = 0.5f;
+			isQuiet = true;
+		}
+		else
+		{
+			Constants.MusicVolume = 1.0f;
+			isQuiet = false;
+		}
+	}
+
+	private static int[] buildScaleIntervals()
+	{
+		scaleTones = Utils.Randomizer.Next(5, 16);
+		int[] localScaleIntervals = new int[scaleTones];
+		for (int i = 0; i < scaleTones; i++)
+		{
+			if (i == 0)
+			{
+				localScaleIntervals[0] = 1;
+			}
+			else
+			{
+				// how many half steps between each interval?
+				localScaleIntervals[i] = localScaleIntervals[i - 1] + Utils.Randomizer.Next(1, 4);
+			}
+		}
+		return localScaleIntervals;
+	}
+
+	public static float[] buildScaleFrequencies()
+	{
+		scaleIntervals = buildScaleIntervals();
+		float[] scaleFrequencies = new float[scaleIntervals.Length];
+		for (int i = 0; i < scaleIntervals.Length; i++)
+		{
+			if (i == 0)
+			{
+				// set the base tone
+				scaleFrequencies[0] = Utils.Randomizer.Next(8000, 20000) * 0.01f;
+			}
+			else
+			{
+				// calculate the frequency based on the interval and base note
+				scaleFrequencies[i] = scaleFrequencies[0] * Mathf.Pow(1.059463f, scaleIntervals[i]);
+			}
+		}
+		return scaleFrequencies;
+	}
+
+	public static float[] buildNoteTimings()
+	{
+		float[] localNoteTimes = new float[6];
+		for (int i = 0; i < localNoteTimes.Length - 1; i++)
+		{
+			// quarter note at 60bpm is 1 second
+			if (i == 0)
+			{
+				localNoteTimes[i] = Utils.Randomizer.Next(50, 250); // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
+			}
+			else
+			{
+				localNoteTimes[i] = localNoteTimes[i - 1] * 2;
+			}
+		}
+		return localNoteTimes;
+	}
 
 	/**
 	 * Creates a sprite. Intended to be used to create Jartlets
@@ -190,8 +266,18 @@ public class Jart : MonoBehaviour
 	/// <summary>
 	/// Creates a jartboard and gets the next jartletAmount.
 	/// </summary>
-	private static void createJartboard()
+	private static void createJartboards()
 	{
+		// clear out old oscillators
+		for (int i = 0; i < oscList.Count; i++)
+		{
+			oscList[i].DestroyOscillator();
+		}
+		oscList.Clear();
+		// get a new scale & timings
+		possibleFrequencies = buildScaleFrequencies();
+		possibleTimings = buildNoteTimings();
+		// now add the jartboards
 		jartBoards.Add(createShape(
 			Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[ColorPaletteIndex]),
 			Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes),
@@ -204,6 +290,16 @@ public class Jart : MonoBehaviour
 			Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize),
 			Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize)
 		));
+		// now create the related oscillator
+		// generate new oscillators
+		for (int i = 0; i < jartBoards.Count; i++)
+		{
+			// when you add the oscillator, it will start playing
+			Oscillator newOsc = new GameObject("Oscillator").AddComponent<Oscillator>();
+			newOsc.transform.parent = jartBoards[i].transform; // force this new gameobject to be a child
+			newOsc.transform.position = jartBoards[i].transform.position; // stick the oscillator on the jartboard
+			oscList.Add(newOsc);
+		}
 	}
 
 	public static void clearJart()
@@ -221,12 +317,7 @@ public class Jart : MonoBehaviour
 		// pick out the color palette
 		ColorPaletteIndex = Utils.Randomizer.Next(0, Colors.PossibleColorPalettes.Count - 1);
 		// define how many jartboards this jart will have
-		totalJartboards = Utils.Randomizer.Next(10, 30);
-		// clear out the music player if it exists
-		if (mp != null)
-		{
-			mp.DestroyMusicPlayer();
-		}
+		totalJartboards = Utils.Randomizer.Next(3, 40);
 	}
 
 	public static void NewJart()
@@ -236,11 +327,9 @@ public class Jart : MonoBehaviour
 		{
 			totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
 			jartboardSize = Utils.Randomizer.Next((int)(Constants.JartCubeSize * 0.1), (int)(Constants.JartCubeSize * 0.5));
-			createJartboard();
+			createJartboards();
 			createJartlets(totalJartletsPerJart, i);
 		}
-		// when you add the oscillator, it will start playing
-		mp = new GameObject("Music Player").AddComponent<MusicPlayer>();
 	}
 
 	public void Start()

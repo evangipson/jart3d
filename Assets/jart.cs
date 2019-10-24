@@ -264,16 +264,25 @@ public class Jart : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Creates a jartboard and gets the next jartletAmount.
+	/// Will set an oscillators position similar to the passed in jartboard.
 	/// </summary>
-	private static void createJartboards()
+	/// <param name="jartboard"></param>
+	private static void tieOscillatorToJartboard(GameObject jartboard) {
+		// when you add the oscillator, it will start playing
+		Oscillator newOsc = new GameObject("Oscillator").AddComponent<Oscillator>();
+		newOsc.transform.parent = jartboard.transform; // force this new gameobject to be a child
+		newOsc.transform.position = jartboard.transform.position; // stick the oscillator on the jartboard
+		oscList.Add(newOsc);
+	}
+
+	/// <summary>
+	/// Creates a jartboard and gets the next jartletAmount, and
+	/// places the new jartboard at the passed in position.
+	/// </summary>
+	private static void createJartboard(Vector3 position)
 	{
-		// clear out old oscillators
-		for (int i = 0; i < oscList.Count; i++)
-		{
-			oscList[i].DestroyOscillator();
-		}
-		oscList.Clear();
+		// how many jartlets should we have?
+		totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
 		// get a new scale & timings
 		possibleFrequencies = buildScaleFrequencies();
 		possibleTimings = buildNoteTimings();
@@ -285,25 +294,21 @@ public class Jart : MonoBehaviour
 			Utils.Randomizer.Next((int)(jartboardSize * 0.5), jartboardSize),
 			Utils.Randomizer.Next((int)(jartboardSize * 0.5), jartboardSize),
 			Utils.Randomizer.Next((int)(jartboardSize * 0.5), jartboardSize),
-			// place the jartboard anywhere in the jartcube
-			Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize),
-			Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize),
-			Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize)
+			position.x,
+			position.y,
+			position.z
 		));
-		// now create the related oscillator
-		// generate new oscillators
-		for (int i = 0; i < jartBoards.Count; i++)
-		{
-			// when you add the oscillator, it will start playing
-			Oscillator newOsc = new GameObject("Oscillator").AddComponent<Oscillator>();
-			newOsc.transform.parent = jartBoards[i].transform; // force this new gameobject to be a child
-			newOsc.transform.position = jartBoards[i].transform.position; // stick the oscillator on the jartboard
-			oscList.Add(newOsc);
-		}
+		tieOscillatorToJartboard(jartBoards[jartBoards.Count - 1]);
 	}
 
 	public static void clearJart()
 	{
+		// clear out old oscillators
+		for (int i = 0; i < oscList.Count; i++)
+		{
+			oscList[i].DestroyOscillator();
+		}
+		oscList.Clear();
 		// remove jartboards and jartlets from unity
 		jartBoards.ForEach(delegate(GameObject jartBoard){
 			Destroy(jartBoard);
@@ -323,11 +328,15 @@ public class Jart : MonoBehaviour
 	public static void NewJart()
 	{
 		clearJart();
+		Vector3 jartboardPosition = new Vector3();
 		for (int i = 0; i < totalJartboards; i++)
 		{
-			totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
 			jartboardSize = Utils.Randomizer.Next((int)(Constants.JartCubeSize * 0.1), (int)(Constants.JartCubeSize * 0.5));
-			createJartboards();
+			// place the jartboard anywhere in the jartcube
+			jartboardPosition.x = Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize);
+			jartboardPosition.y = Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize);
+			jartboardPosition.z = Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize);
+			createJartboard(jartboardPosition);
 			createJartlets(totalJartletsPerJart, i);
 		}
 	}
@@ -335,5 +344,20 @@ public class Jart : MonoBehaviour
 	public void Start()
 	{
 		NewJart();
+	}
+
+	public void Update()
+	{
+		// the user has clicked and let up
+		if (Input.GetMouseButtonUp(0))
+		{
+			//This gets the Main Camera from the Scene
+			Camera mainCamera = Camera.main;
+			Vector3 jartboardPosition = new Vector3();
+			jartboardPosition.x = mainCamera.transform.position.x;
+			jartboardPosition.y = mainCamera.transform.position.y;
+			jartboardPosition.z = mainCamera.transform.position.z;
+			createJartboard(jartboardPosition);
+		}
 	}
 }

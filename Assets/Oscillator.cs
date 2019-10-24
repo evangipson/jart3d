@@ -99,7 +99,7 @@ public class Oscillator : MonoBehaviour
 		audioSource.volume = 0;
 		audioSource.playOnAwake = false;
 		// make sure the audio source is 3d
-		audioSource.maxDistance = Constants.JartCubeSize * 0.5f;
+		audioSource.maxDistance = Constants.JartCubeSize;
 		audioSource.rolloffMode = AudioRolloffMode.Linear;
 		audioSource.spread = 360;
 		audioSource.spatialize = true;

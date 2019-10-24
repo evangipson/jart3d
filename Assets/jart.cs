@@ -281,6 +281,8 @@ public class Jart : MonoBehaviour
 	/// </summary>
 	private static void createJartboard(Vector3 position)
 	{
+		// how big is this jartboard?
+		jartboardSize = Utils.Randomizer.Next((int)(Constants.JartCubeSize * 0.1), (int)(Constants.JartCubeSize * 0.5));
 		// how many jartlets should we have?
 		totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
 		// get a new scale & timings
@@ -322,7 +324,8 @@ public class Jart : MonoBehaviour
 		// pick out the color palette
 		ColorPaletteIndex = Utils.Randomizer.Next(0, Colors.PossibleColorPalettes.Count - 1);
 		// define how many jartboards this jart will have
-		totalJartboards = Utils.Randomizer.Next(3, 40);
+		//totalJartboards = Utils.Randomizer.Next(3, 40);
+		totalJartboards = 0;
 	}
 
 	public static void NewJart()
@@ -331,7 +334,6 @@ public class Jart : MonoBehaviour
 		Vector3 jartboardPosition = new Vector3();
 		for (int i = 0; i < totalJartboards; i++)
 		{
-			jartboardSize = Utils.Randomizer.Next((int)(Constants.JartCubeSize * 0.1), (int)(Constants.JartCubeSize * 0.5));
 			// place the jartboard anywhere in the jartcube
 			jartboardPosition.x = Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize);
 			jartboardPosition.y = Utils.Randomizer.Next(-Constants.JartCubeSize, Constants.JartCubeSize);
@@ -356,6 +358,7 @@ public class Jart : MonoBehaviour
 			Vector3 jartboardPosition = new Vector3();
 			jartboardPosition = Camera.main.transform.position + Camera.main.transform.forward * Utils.Randomizer.Next(jartboardSize, jartboardSize * 4);
 			createJartboard(jartboardPosition);
+			createJartlets(totalJartletsPerJart, jartBoards.Count - 1);
 		}
 	}
 }

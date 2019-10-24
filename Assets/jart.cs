@@ -354,9 +354,7 @@ public class Jart : MonoBehaviour
 			//This gets the Main Camera from the Scene
 			Camera mainCamera = Camera.main;
 			Vector3 jartboardPosition = new Vector3();
-			jartboardPosition.x = mainCamera.transform.position.x;
-			jartboardPosition.y = mainCamera.transform.position.y;
-			jartboardPosition.z = mainCamera.transform.position.z;
+			jartboardPosition = Camera.main.transform.position + Camera.main.transform.forward * Utils.Randomizer.Next(jartboardSize, jartboardSize * 4);
 			createJartboard(jartboardPosition);
 		}
 	}

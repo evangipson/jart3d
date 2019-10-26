@@ -285,10 +285,12 @@ public class Jart : MonoBehaviour
 		jartboardSize = Utils.Randomizer.Next((int)(Constants.JartCubeSize * 0.1), (int)(Constants.JartCubeSize * 0.5));
 		// how many jartlets should we have?
 		totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
+		// how many oscillators per jartboard?
+		int oscillatorsPerJartboard = Utils.Randomizer.Next(1, 2);
 		// get a new scale & timings
 		possibleFrequencies = buildScaleFrequencies();
 		possibleTimings = buildNoteTimings();
-		// now add the jartboards
+		// now add the jartboard
 		jartBoards.Add(createShape(
 			Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[ColorPaletteIndex]),
 			Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes),
@@ -300,7 +302,11 @@ public class Jart : MonoBehaviour
 			position.y,
 			position.z
 		));
-		tieOscillatorToJartboard(jartBoards[jartBoards.Count - 1]);
+		// and then attach the oscillator(s) to it
+		for(int i = 0; i < oscillatorsPerJartboard; i++)
+		{
+			tieOscillatorToJartboard(jartBoards[jartBoards.Count - 1]);
+		}
 	}
 
 	public static void clearJart()
@@ -351,7 +357,8 @@ public class Jart : MonoBehaviour
 	public void Update()
 	{
 		// the user has clicked and let up
-		if (Input.GetMouseButtonUp(0))
+		// note: this is less specific, so it must come later
+		if(Input.GetMouseButtonUp(0))
 		{
 			//This gets the Main Camera from the Scene
 			Camera mainCamera = Camera.main;
@@ -359,6 +366,17 @@ public class Jart : MonoBehaviour
 			jartboardPosition = Camera.main.transform.position + Camera.main.transform.forward * Utils.Randomizer.Next(jartboardSize, jartboardSize * 4);
 			createJartboard(jartboardPosition);
 			createJartlets(totalJartletsPerJart, jartBoards.Count - 1);
+		}
+		// the user has right clicked
+		if (Input.GetMouseButtonUp(1))
+		{
+			if(jartBoards.Count > 0)
+			{
+				// how many jartlets should we have?
+				totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
+				// Add jartlets to the last jartboard created
+				createJartlets(totalJartletsPerJart, jartBoards.Count - 1);
+			}
 		}
 	}
 }

@@ -38,16 +38,19 @@ public class Oscillator : MonoBehaviour
 		// change around the reverb
 		reverbFilter.reverbDelay = Utils.Randomizer.Next(20, 70) * 0.01f;
 		reverbFilter.reverbLevel = Utils.Randomizer.Next(1000, 2000);
+		reverbFilter.dryLevel = Utils.Randomizer.Next(-1000, 0);
+		reverbFilter.reflectionsLevel = Utils.Randomizer.Next(0, 1000);
+		// change around lowpass filter
 		cutoffFrequencyMod = Utils.Randomizer.Next(20, 1000);
 		lowPassFilter.cutoffFrequency = cutoffFrequencyMod;
-		lowPassFilter.lowpassResonanceQ = Utils.Randomizer.Next(1, 40) * 0.1f;
+		lowPassFilter.lowpassResonanceQ = Utils.Randomizer.Next(1, 20) * 0.1f;
 		if (waveIndex == 3 || waveIndex == 4)
 		{
 			lowPassFilter.lowpassResonanceQ = 1;
 		}
 		// change around the echo
-		echoFilter.delay = Utils.Randomizer.Next(1, 4) * noteTime;
-		echoFilter.decayRatio = Utils.Randomizer.Next(0, 10) * 0.1f;
+		echoFilter.delay = Utils.Randomizer.Next(1, 2) * noteTime;
+		echoFilter.decayRatio = Utils.Randomizer.Next(3, 7) * 0.1f;
 		frequency = Utils.GetRandomArrayItem(Jart.possibleFrequencies);
 		// now the new envelope
 		attack = Utils.Randomizer.Next(1, 50) * 0.01f * maxVolume; // in ms
@@ -59,23 +62,23 @@ public class Oscillator : MonoBehaviour
 	{
 		if (waveIndex == 1)
 		{
-			maxVolume = 0.00006f; // evan waves need to be quiet too
+			maxVolume = 0.00006f; // evan waves need to be quiet
 		}
 		else if (waveIndex == 2)
 		{
-			maxVolume = 0.0005f; // sine needs to be a lil less quiiiiet
+			maxVolume = 0.0003f; // sine needs to be a lil less quiiiiet
 		}
-		else if (waveIndex == 3)
-		{
-			maxVolume = 0.00002f; // white noise need to be waaay quiiiiet
-		}
-		else if (waveIndex == 4)
-		{
-			maxVolume = 0.0005f; // pink noise need to be quiiiiet
-		}
+		//else if (waveIndex == 3)
+		//{
+		//	maxVolume = 0.000002f; // pink noise needs to be quiiiiet
+		//}
+		//else if (waveIndex == 4)
+		//{
+		//	maxVolume = 0.000002f; // white noise need to be vewwwwwy quiiiiet
+		//}
 		else
 		{
-			maxVolume = 0.005f; // everything else is normal volume
+			maxVolume = 0.05f; // everything else is normal volume
 		}
 	}
 
@@ -114,8 +117,8 @@ public class Oscillator : MonoBehaviour
 		waveFormMethods.Add(playTriangleWave);
 		waveFormMethods.Add(playEvanWave);
 		waveFormMethods.Add(playSineWave);
-		waveFormMethods.Add(playPinkNoiseWave);
-		waveFormMethods.Add(playWhiteNoiseWave);
+		//waveFormMethods.Add(playPinkNoiseWave);
+		//waveFormMethods.Add(playWhiteNoiseWave);
 		waveFormMethods.Add(playSquareWave);
 		// we currently have multiple possible waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound

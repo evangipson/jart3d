@@ -191,7 +191,7 @@ public class Jart : MonoBehaviour
 		{
 			// chance to repeat the jartlet with a slight shift, without changing width/height/depth.
 			// note: we have to have made a jartlet before repeating one.
-			if (i > 0 && Utils.Randomizer.Next(0, 100) > 12)
+			if (i > 0 && Utils.Randomizer.Next(0, 100) > 40)
 			{
 				// get bigger or smaller
 				if (Utils.Randomizer.Next(0, 10) > 7)
@@ -244,8 +244,8 @@ public class Jart : MonoBehaviour
 				jartletDepth = Utils.Randomizer.Next((int)(jartletSize * 0.25), jartletSize);
 				jartletPositionX = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.x - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.x + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5));
 				jartletPositionY = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.y - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.y + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5));
-				//jartletPositionZ = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.z - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.z + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5));
-				jartletPositionZ = (int)jartBoards[jartboardIndex].gameObject.transform.position.z;
+				jartletPositionZ = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.z - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.z + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5));
+				//jartletPositionZ = (int)jartBoards[jartboardIndex].gameObject.transform.position.z;
 				jartletSkew = Quaternion.Euler(Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360));
 			}
 
@@ -286,7 +286,8 @@ public class Jart : MonoBehaviour
 		// how many jartlets should we have?
 		totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
 		// how many oscillators per jartboard?
-		int oscillatorsPerJartboard = Utils.Randomizer.Next(1, 2);
+		//int oscillatorsPerJartboard = Utils.Randomizer.Next(1, 2);
+		int oscillatorsPerJartboard = 1;
 		// get a new scale & timings
 		possibleFrequencies = buildScaleFrequencies();
 		possibleTimings = buildNoteTimings();

@@ -3,6 +3,11 @@ jart3d will try it's hardest to generate you an interesting art experience, usin
 
 jart3d generates art by layering different shapes, then generating rules for what those shapes look like at any given depth, then applies rotations, scales, and skews to generate the final product.
 
+Here are some of my favorite 3d jarts so far:
+![Abstract 3d Jart 1](https://evangipson.com/jart/jart3d-06.png)
+
+![Abstract 3d Jart 2](https://evangipson.com/jart/jart3d-07.png)
+
 | jart3d Readme |
 |---|
 | [Built With](#built-with) |

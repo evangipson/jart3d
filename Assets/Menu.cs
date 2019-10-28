@@ -3,7 +3,8 @@ using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
-	public static bool IsPaused = false;
+	public bool isPaused = false;
+	public GameObject MainMenuUI;
 	public GameObject PauseMenuUI;
 	public Slider CameraSensitivitySlider;
 
@@ -11,14 +12,14 @@ public class Menu : MonoBehaviour
 	{
 		CameraBehavior.camSens = CameraSensitivitySlider.value;
 		PauseMenuUI.SetActive(false);
-		IsPaused = false;
+		isPaused = false;
 		Cursor.visible = false;
 	}
 
 	public void Pause()
 	{
 		PauseMenuUI.SetActive(true);
-		IsPaused = true;
+		isPaused = true;
 		Cursor.visible = true;
 	}
 
@@ -46,6 +47,20 @@ public class Menu : MonoBehaviour
 		#endif
 	}
 
+	// will show a "submenu" for the current menu
+	// by taking up the full screen in front of it
+	// and having a back button to get back to the
+	// passed in menu.
+	private void showSubMenu(GameObject menu)
+	{
+
+	}
+
+	private void showMainMenu()
+	{
+
+	}
+
 	private void Start()
 	{
 		Cursor.visible = false;
@@ -56,7 +71,7 @@ public class Menu : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
 			Jart.ToggleSongQuiet();
-			if (!IsPaused)
+			if (!isPaused)
 			{
 				Pause();
 			}

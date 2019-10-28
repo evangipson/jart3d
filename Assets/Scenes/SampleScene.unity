@@ -838,7 +838,7 @@ GameObject:
   - component: {fileID: 602743043}
   - component: {fileID: 602743042}
   m_Layer: 5
-  m_Name: PauseMenuUI
+  m_Name: Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -856,6 +856,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b303ce3e1d80efa45967af4e777c0d71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MainMenuUI: {fileID: 0}
   PauseMenuUI: {fileID: 906577413}
   CameraSensitivitySlider: {fileID: 1832015995}
 --- !u!114 &602743043

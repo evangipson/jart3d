@@ -72,7 +72,7 @@ public class Oscillator : MonoBehaviour
 		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSineWave, 0.008f));
 		//waveForms.Add(new Tuple<PlayWaveformMethod, float>(playPinkNoiseWave, 0.3f));
 		//waveForms.Add(new Tuple<PlayWaveformMethod, float>(playWhiteNoiseWave, 0.007f));
-		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSquareWave, 0.008f));
+		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSquareWave, 0.01f));
 		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playEvanWave, 0.03f));
 		// we currently have multiple possible waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound
@@ -92,11 +92,11 @@ public class Oscillator : MonoBehaviour
 		reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
 		lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
 		// change around the echo per OSCILLATOR, not per note
-		echoFilter.delay = Utils.Randomizer.Next(1, 2) * noteTime;
+		echoFilter.delay = (Utils.Randomizer.Next(25, 100) * 0.01f) * noteTime;
 		echoFilter.decayRatio = Utils.Randomizer.Next(5, 9) * 0.1f;
 		// ensure we can mess around with the reverb filter,
 		// otherwise, all values can't be modified: https://docs.unity3d.com/Manual/class-AudioReverbFilter.html
-		reverbFilter.reverbPreset = AudioReverbPreset.Cave;
+		reverbFilter.reverbPreset = Utils.Randomizer.Next() > 50 ? AudioReverbPreset.Arena : AudioReverbPreset.Mountains;
 		// change around the reverb per OSCILLATOR, not per note
 		//reverbFilter.diffusion = Utils.Randomizer.Next(20, 90); // echo "density", in percent
 		//reverbFilter.density = Utils.Randomizer.Next(20, 90); // modal "density", in percent
@@ -195,7 +195,6 @@ public class Oscillator : MonoBehaviour
 		{
 			phase += increment;
 			data[i] = phase % 3 == 0 ? (float)(Constants.MusicVolume * (double)Mathf.Cos((float)phase)) : (float)-(Constants.MusicVolume * (double)Mathf.Atan((float)phase));
-			cutoffFrequencyMod = (float)phase * 10;
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{

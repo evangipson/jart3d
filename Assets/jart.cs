@@ -28,6 +28,8 @@ public class Jart : MonoBehaviour
 	public static float[] possibleTimings;
 	private static bool isQuiet = false;
 
+	private Menu menuComponent;
+
 	public static void ToggleSongQuiet()
 	{
 		if (!isQuiet)
@@ -331,8 +333,8 @@ public class Jart : MonoBehaviour
 		// pick out the color palette
 		ColorPaletteIndex = Utils.Randomizer.Next(0, Colors.PossibleColorPalettes.Count - 1);
 		// define how many jartboards this jart will have
-		//totalJartboards = Utils.Randomizer.Next(3, 40);
-		totalJartboards = 0;
+		totalJartboards = Utils.Randomizer.Next(1, 20);
+		//totalJartboards = 0;
 	}
 
 	public static void NewJart()
@@ -352,31 +354,36 @@ public class Jart : MonoBehaviour
 
 	public void Start()
 	{
+		menuComponent = GameObject.Find("Menu").GetComponent<Menu>();
 		NewJart();
 	}
 
 	public void Update()
 	{
-		// the user has clicked and let up
-		// note: this is less specific, so it must come later
-		if(Input.GetMouseButtonUp(0))
+		// make sure the menu isn't up
+		if (!menuComponent.isPaused)
 		{
-			//This gets the Main Camera from the Scene
-			Camera mainCamera = Camera.main;
-			Vector3 jartboardPosition = new Vector3();
-			jartboardPosition = Camera.main.transform.position + Camera.main.transform.forward * Utils.Randomizer.Next(jartboardSize, jartboardSize * 4);
-			createJartboard(jartboardPosition);
-			createJartlets(totalJartletsPerJart, jartBoards.Count - 1);
-		}
-		// the user has right clicked
-		if (Input.GetMouseButtonUp(1))
-		{
-			if(jartBoards.Count > 0)
+			// the user has clicked and let up
+			// note: this is less specific, so it must come later
+			if (Input.GetMouseButtonDown(0))
 			{
-				// how many jartlets should we have?
-				totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
-				// Add jartlets to the last jartboard created
+				//This gets the Main Camera from the Scene
+				Camera mainCamera = Camera.main;
+				Vector3 jartboardPosition = new Vector3();
+				jartboardPosition = Camera.main.transform.position + Camera.main.transform.forward * Utils.Randomizer.Next(jartboardSize, jartboardSize * 4);
+				createJartboard(jartboardPosition);
 				createJartlets(totalJartletsPerJart, jartBoards.Count - 1);
+			}
+			// the user has right clicked
+			if (Input.GetMouseButtonDown(1))
+			{
+				if (jartBoards.Count > 0)
+				{
+					// how many jartlets should we have?
+					totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
+					// Add jartlets to the last jartboard created
+					createJartlets(totalJartletsPerJart, jartBoards.Count - 1);
+				}
 			}
 		}
 	}

@@ -20,10 +20,16 @@ public class CameraBehavior : MonoBehaviour
 	private Vector3 lastMouse = new Vector3(255, 255, 255); //kind of in the middle of the screen, rather than at the top (play)
 	private Vector3 lastControlPoint = new Vector3(255, 255, 255); //for when the user freezes their camera angle
 	private float totalRun = 1.0f;
+	private Menu menuComponent;
+
+	private void Start()
+	{
+		menuComponent = GameObject.Find("Menu").GetComponent<Menu>();
+	}
 
 	void Update()
 	{
-		if (Menu.IsPaused)
+		if (menuComponent.isPaused)
 		{
 			camSens = 0f;
 		}
@@ -34,7 +40,7 @@ public class CameraBehavior : MonoBehaviour
 		transform.eulerAngles = lastMouse;
 		lastMouse = Input.mousePosition;
 		//get user input if we aren't paused
-		if(!Menu.IsPaused) {
+		if(!menuComponent.isPaused) {
 			Vector3 p = GetBaseInput();
 			if (Input.GetKey(KeyCode.LeftShift))
 			{

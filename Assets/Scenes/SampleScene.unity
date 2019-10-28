@@ -799,6 +799,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b57cf4241317544fb1161951d81117f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  axes: 0
+  minimumX: -360
+  maximumX: 360
+  minimumY: -60
+  maximumY: 60
+  frameCounter: 20
 --- !u!114 &534669907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -856,6 +862,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b303ce3e1d80efa45967af4e777c0d71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPaused: 0
   MainMenuUI: {fileID: 0}
   PauseMenuUI: {fileID: 906577413}
   CameraSensitivitySlider: {fileID: 1832015995}
@@ -1492,10 +1499,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 1857268385}
   m_HandleRect: {fileID: 337916159}
   m_Direction: 0
-  m_MinValue: 0.05
-  m_MaxValue: 0.25
+  m_MinValue: 2
+  m_MaxValue: 10
   m_WholeNumbers: 0
-  m_Value: 0.25
+  m_Value: 4
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:

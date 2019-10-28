@@ -172,7 +172,7 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			data[i] = (float)(Constants.MusicVolume * (double)Mathf.PingPong((float)phase, 1.0f));
+			data[i] = (float)(waveForms[waveIndex].Item2 * (double)Mathf.PingPong((float)phase, 1.0f));
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -194,7 +194,7 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			data[i] = phase % 3 == 0 ? (float)(Constants.MusicVolume * (double)Mathf.Cos((float)phase)) : (float)-(Constants.MusicVolume * (double)Mathf.Atan((float)phase));
+			data[i] = phase % 3 == 0 ? (float)(waveForms[waveIndex].Item2 * (double)Mathf.Cos((float)phase)) : (float)-(waveForms[waveIndex].Item2 * (double)Mathf.Atan((float)phase));
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -267,13 +267,13 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			if (Constants.MusicVolume * Mathf.Sin((float)phase) >= 0 * Constants.MusicVolume)
+			if (waveForms[waveIndex].Item2 * Mathf.Sin((float)phase) >= 0 * waveForms[waveIndex].Item2)
 			{
-				data[i] = Constants.MusicVolume * Mathf.Sin((float)phase);
+				data[i] = waveForms[waveIndex].Item2 * Mathf.Sin((float)phase);
 			}
 			else
 			{
-				data[i] = -Constants.MusicVolume * 0.6f;
+				data[i] = -waveForms[waveIndex].Item2 * 0.6f;
 			}
 			// play sound in both speakers if they exist
 			if (channels == 2)

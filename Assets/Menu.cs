@@ -10,7 +10,8 @@ public class Menu : MonoBehaviour
 
 	public void Resume()
 	{
-		CameraBehavior.camSens = CameraSensitivitySlider.value;
+		CameraBehavior.sensitivityX = CameraSensitivitySlider.value;
+		CameraBehavior.sensitivityY = CameraSensitivitySlider.value;
 		PauseMenuUI.SetActive(false);
 		isPaused = false;
 		Cursor.visible = false;
@@ -25,7 +26,8 @@ public class Menu : MonoBehaviour
 
 	public void AdjustCameraSensitivity(float sliderValue)
 	{
-		CameraBehavior.camSens = CameraSensitivitySlider.value;
+		CameraBehavior.sensitivityX = CameraSensitivitySlider.value;
+		CameraBehavior.sensitivityY = CameraSensitivitySlider.value;
 	}
 
 	public void NewJart()
@@ -58,7 +60,7 @@ public class Menu : MonoBehaviour
 
 	private void showMainMenu()
 	{
-
+		 
 	}
 
 	private void Start()

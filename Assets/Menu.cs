@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class Menu : MonoBehaviour
 {
 	public bool isPaused = false;
+	public bool gameStarted = false;
 	public GameObject MainMenuUI;
 	public GameObject PauseMenuUI;
 	public Slider CameraSensitivitySlider;
@@ -30,10 +31,23 @@ public class Menu : MonoBehaviour
 		CameraBehavior.sensitivityY = CameraSensitivitySlider.value;
 	}
 
-	public void NewJart()
+	public void ViewJart()
 	{
-		Resume();
 		Jart.NewJart();
+		gameStarted = true;
+		MainMenuUI.SetActive(false);
+		Cursor.visible = false;
+		Resume();
+		SetCameraPosition.CenterCameraOnJartboard();
+	}
+
+	public void CreateSandbox()
+	{
+		Jart.clearJart();
+		gameStarted = true;
+		MainMenuUI.SetActive(false);
+		Cursor.visible = false;
+		Resume();
 		SetCameraPosition.CenterCameraOnJartboard();
 	}
 
@@ -58,14 +72,10 @@ public class Menu : MonoBehaviour
 
 	}
 
-	private void showMainMenu()
-	{
-		 
-	}
-
 	private void Start()
 	{
-		Cursor.visible = false;
+		gameStarted = false;
+		MainMenuUI.SetActive(true);
 	}
 
 	void Update()

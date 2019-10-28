@@ -72,7 +72,7 @@ public class Oscillator : MonoBehaviour
 		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSineWave, 0.008f));
 		//waveForms.Add(new Tuple<PlayWaveformMethod, float>(playPinkNoiseWave, 0.3f));
 		//waveForms.Add(new Tuple<PlayWaveformMethod, float>(playWhiteNoiseWave, 0.007f));
-		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSquareWave, 0.01f));
+		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSquareWave, 0.05f));
 		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playEvanWave, 0.03f));
 		// we currently have multiple possible waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound

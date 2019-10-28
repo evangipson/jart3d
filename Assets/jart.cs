@@ -355,13 +355,12 @@ public class Jart : MonoBehaviour
 	public void Start()
 	{
 		menuComponent = GameObject.Find("Menu").GetComponent<Menu>();
-		NewJart();
 	}
 
 	public void Update()
 	{
 		// make sure the menu isn't up
-		if (!menuComponent.isPaused)
+		if (!menuComponent.isPaused && menuComponent.gameStarted)
 		{
 			// the user has clicked and let up
 			// note: this is less specific, so it must come later

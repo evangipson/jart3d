@@ -67,7 +67,7 @@ public class CameraBehavior : MonoBehaviour
 
 	void Update()
 	{
-		if(menuComponent.isPaused)
+		if (menuComponent.isPaused || !menuComponent.gameStarted)
 		{
 			return;
 		}

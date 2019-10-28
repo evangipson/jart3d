@@ -4,6 +4,21 @@ using System.Collections.Generic;
 using System.Timers;
 using UnityEngine;
 
+public class Wave
+{
+	// define delegate to fill up method list with
+	public delegate void PlayWaveformMethod(float[] data, int channels);
+
+	public PlayWaveformMethod WaveMethod;
+	public float MaxVolume;
+	
+	public Wave(PlayWaveformMethod waveMethod, float maxVolume)
+	{
+		WaveMethod = waveMethod;
+		MaxVolume = maxVolume;
+	}
+}
+
 /// <summary>
 /// The class responsible for controlling the music in jart.
 /// Huge shout out to https://www.youtube.com/watch?v=GqHFGMy_51c.
@@ -14,24 +29,21 @@ public class Oscillator : MonoBehaviour
 	public double increment = 0f;
 	public double phase = 0f;
 	public double samplingFreq = 48000f;
-	public double frequency = Utils.GetRandomArrayItem(Jart.possibleFrequencies);
+	public double frequency;
 	public float attack;
 	public float sustain;
 	public float release;
-	public float rest = (Utils.GetRandomArrayItem(Jart.possibleTimings) / 1000) * Utils.Randomizer.Next(0, 4);
+	public float rest;
 	public int waveIndex = 0;
 	public float cutoffFrequencyMod;
-	public float noteTime = Utils.GetRandomArrayItem(Jart.possibleTimings);
+	public float noteTime;
 
 	private AudioEchoFilter echoFilter;
 	private AudioReverbFilter reverbFilter;
 	private AudioLowPassFilter lowPassFilter;
 	private AudioSource audioSource;
-
-	// define delegate to fill up method list with
-	private delegate void PlayWaveformMethod(float[] data, int channels);
 	// here's the method list for all waveform methods and related maximum volumes
-	private List<Tuple<PlayWaveformMethod, float>> waveForms = new List<Tuple<PlayWaveformMethod, float>>();
+	private List<Wave> waveForms;
 
 	private void createNewNoteProperties()
 	{
@@ -46,9 +58,8 @@ public class Oscillator : MonoBehaviour
 			lowPassFilter.lowpassResonanceQ = 1;
 		}
 		// now the new envelope
-		// Item2 is maxvolume related to wave, note: in ms
-		attack = Utils.Randomizer.Next(1, 50) * 0.01f * waveForms[waveIndex].Item2;
-		release = attack + Utils.Randomizer.Next(1, 50) * 0.01f * waveForms[waveIndex].Item2;
+		attack = Utils.Randomizer.Next(1, 50) * 0.01f * waveForms[waveIndex].MaxVolume;
+		release = attack + Utils.Randomizer.Next(1, 50) * 0.01f * waveForms[waveIndex].MaxVolume;
 		sustain = noteTime / 1000; // in ms
 	}
 
@@ -60,56 +71,6 @@ public class Oscillator : MonoBehaviour
 		Destroy(audioSource);
 		Destroy(gameObject);
 		Destroy(this);
-	}
-
-	/// <summary>
-	/// Meant to be called by other classes to trigger a new song.
-	/// </summary>
-	public void StartNewSong()
-	{
-		// Put all of our wave form methods in an accessible data structure
-		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playTriangleWave, 0.07f));
-		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSineWave, 0.008f));
-		//waveForms.Add(new Tuple<PlayWaveformMethod, float>(playPinkNoiseWave, 0.3f));
-		//waveForms.Add(new Tuple<PlayWaveformMethod, float>(playWhiteNoiseWave, 0.007f));
-		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playSquareWave, 0.05f));
-		waveForms.Add(new Tuple<PlayWaveformMethod, float>(playEvanWave, 0.03f));
-		// we currently have multiple possible waves, so pick one
-		// note: random.Next is inclusive lower bound, exclusive high bound
-		waveIndex = Utils.Randomizer.Next(0, waveForms.Count);
-		// add audio source first because filters depend on it
-		audioSource = gameObject.AddComponent<AudioSource>();
-		audioSource.volume = 0;
-		audioSource.playOnAwake = false;
-		// make sure the audio source is 3d
-		audioSource.maxDistance = Constants.JartCubeSize;
-		audioSource.rolloffMode = AudioRolloffMode.Linear;
-		audioSource.spread = 360;
-		audioSource.spatialize = true;
-		audioSource.spatialBlend = 1.0f;
-		// when you add the oscillator, it will start playing
-		echoFilter = gameObject.AddComponent<AudioEchoFilter>();
-		reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
-		lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
-		// change around the echo per OSCILLATOR, not per note
-		echoFilter.delay = (Utils.Randomizer.Next(25, 100) * 0.01f) * noteTime;
-		echoFilter.decayRatio = Utils.Randomizer.Next(5, 9) * 0.1f;
-		// ensure we can mess around with the reverb filter,
-		// otherwise, all values can't be modified: https://docs.unity3d.com/Manual/class-AudioReverbFilter.html
-		reverbFilter.reverbPreset = Utils.Randomizer.Next() > 50 ? AudioReverbPreset.Arena : AudioReverbPreset.Mountains;
-		// change around the reverb per OSCILLATOR, not per note
-		//reverbFilter.diffusion = Utils.Randomizer.Next(20, 90); // echo "density", in percent
-		//reverbFilter.density = Utils.Randomizer.Next(20, 90); // modal "density", in percent
-		//reverbFilter.dryLevel = -1000; // need to figure out what this actually does
-		//reverbFilter.room = -1000; // need to figure out what this actually does
-		//reverbFilter.reverbDelay = Utils.Randomizer.Next(10, 30) * 0.01f;
-		//reverbFilter.reverbLevel = Utils.Randomizer.Next(0, 2000);
-		//reverbFilter.reflectionsLevel = Utils.Randomizer.Next(0, 1000);
-		// change around lowpass filter per OSCILLATOR, not per note
-		cutoffFrequencyMod = Utils.Randomizer.Next(100, 1500);
-		//lowPassFilter.lowpassResonanceQ = Utils.Randomizer.Next(1, 20) * 0.1f;
-		// now set up the timer for the next note
-		StartCoroutine(waitAndStartNewNote());
 	}
 
 	// A(D)SR methods
@@ -147,9 +108,9 @@ public class Oscillator : MonoBehaviour
 	private IEnumerator startEnvelope()
 	{
 		audioSource.volume += attack;
-		if (audioSource.volume >= waveForms[waveIndex].Item2)
+		if (audioSource.volume >= waveForms[waveIndex].MaxVolume)
 		{
-			audioSource.volume = waveForms[waveIndex].Item2;
+			audioSource.volume = waveForms[waveIndex].MaxVolume;
 			// apply sustain by waiting to decrease audiosource volume
 			yield return new WaitForSeconds(sustain);
 			StartCoroutine(stopEnvelope());
@@ -172,7 +133,7 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			data[i] = (float)(waveForms[waveIndex].Item2 * (double)Mathf.PingPong((float)phase, 1.0f));
+			data[i] = (float)(waveForms[waveIndex].MaxVolume * (double)Mathf.PingPong((float)phase, 1.0f));
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -194,7 +155,7 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			data[i] = phase % 3 == 0 ? (float)(waveForms[waveIndex].Item2 * (double)Mathf.Cos((float)phase)) : (float)-(waveForms[waveIndex].Item2 * (double)Mathf.Atan((float)phase));
+			data[i] = phase % 3 == 0 ? (float)(waveForms[waveIndex].MaxVolume * (double)Mathf.Cos((float)phase)) : (float)-(waveForms[waveIndex].MaxVolume * (double)Mathf.Atan((float)phase));
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -267,13 +228,13 @@ public class Oscillator : MonoBehaviour
 		for (int i = 0; i < data.Length; i += channels)
 		{
 			phase += increment;
-			if (waveForms[waveIndex].Item2 * Mathf.Sin((float)phase) >= 0 * waveForms[waveIndex].Item2)
+			if (waveForms[waveIndex].MaxVolume * Mathf.Sin((float)phase) >= 0 * waveForms[waveIndex].MaxVolume)
 			{
-				data[i] = waveForms[waveIndex].Item2 * Mathf.Sin((float)phase);
+				data[i] = waveForms[waveIndex].MaxVolume * Mathf.Sin((float)phase);
 			}
 			else
 			{
-				data[i] = -waveForms[waveIndex].Item2 * 0.6f;
+				data[i] = -waveForms[waveIndex].MaxVolume * 0.6f;
 			}
 			// play sound in both speakers if they exist
 			if (channels == 2)
@@ -291,17 +252,65 @@ public class Oscillator : MonoBehaviour
 	// unity methods derived from MonoBehaviour
 	void Start()
 	{
-		// call the same function other classes will call to start the oscillator!
-		StartNewSong();
+		// set defaults
+		frequency = Utils.GetRandomArrayItem(Jart.possibleFrequencies);
+		rest = (Utils.GetRandomArrayItem(Jart.possibleTimings) / 1000) * Utils.Randomizer.Next(0, 4);
+		noteTime = Utils.GetRandomArrayItem(Jart.possibleTimings);
+		// now set up the waves that we could potentially hear
+		waveForms = new List<Wave>();
+		// Put all of our wave form methods in an accessible data structure,
+		// passed with a maxVolume float
+		waveForms.Add(new Wave(playTriangleWave, 0.07f));
+		waveForms.Add(new Wave(playSineWave, 0.008f));
+		waveForms.Add(new Wave(playSquareWave, 0.05f));
+		waveForms.Add(new Wave(playEvanWave, 0.03f));
+		//waveForms.Add(new Wave(playPinkNoiseWave, 0.3f));
+		//waveForms.Add(new Wave(playWhiteNoiseWave, 0.007f));
+		// we currently have multiple possible waves, so pick one
+		// note: random.Next is inclusive lower bound, exclusive high bound
+		waveIndex = Utils.Randomizer.Next(0, waveForms.Count);
+		// add audio source first because filters depend on it
+		audioSource = gameObject.AddComponent<AudioSource>();
+		audioSource.volume = 0;
+		audioSource.playOnAwake = false;
+		// make sure the audio source is 3d
+		audioSource.maxDistance = Constants.JartCubeSize;
+		audioSource.rolloffMode = AudioRolloffMode.Linear;
+		audioSource.spread = 360;
+		audioSource.spatialize = true;
+		audioSource.spatialBlend = 1.0f;
+		// when you add the oscillator, it will start playing
+		echoFilter = gameObject.AddComponent<AudioEchoFilter>();
+		reverbFilter = gameObject.AddComponent<AudioReverbFilter>();
+		lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
+		// change around the echo per OSCILLATOR, not per note
+		echoFilter.delay = (Utils.Randomizer.Next(25, 100) * 0.01f) * noteTime;
+		echoFilter.decayRatio = Utils.Randomizer.Next(5, 9) * 0.1f;
+		// ensure we can mess around with the reverb filter,
+		// otherwise, all values can't be modified: https://docs.unity3d.com/Manual/class-AudioReverbFilter.html
+		reverbFilter.reverbPreset = Utils.Randomizer.Next() > 50 ? AudioReverbPreset.Arena : AudioReverbPreset.Mountains;
+		// change around the reverb per OSCILLATOR, not per note
+		//reverbFilter.diffusion = Utils.Randomizer.Next(20, 90); // echo "density", in percent
+		//reverbFilter.density = Utils.Randomizer.Next(20, 90); // modal "density", in percent
+		//reverbFilter.dryLevel = -1000; // need to figure out what this actually does
+		//reverbFilter.room = -1000; // need to figure out what this actually does
+		//reverbFilter.reverbDelay = Utils.Randomizer.Next(10, 30) * 0.01f;
+		//reverbFilter.reverbLevel = Utils.Randomizer.Next(0, 2000);
+		//reverbFilter.reflectionsLevel = Utils.Randomizer.Next(0, 1000);
+		// change around lowpass filter per OSCILLATOR, not per note
+		cutoffFrequencyMod = Utils.Randomizer.Next(100, 1500);
+		//lowPassFilter.lowpassResonanceQ = Utils.Randomizer.Next(1, 20) * 0.1f;
+		// now set up the timer for the next note
+		StartCoroutine(waitAndStartNewNote());
 	}
 
-	private void Update()
+	void Update()
 	{
 		lowPassFilter.cutoffFrequency = cutoffFrequencyMod;
 	}
 
-	private void OnAudioFilterRead(float[] data, int channels)
+	void OnAudioFilterRead(float[] data, int channels)
 	{
-		waveForms[waveIndex].Item1(data, channels);
+		waveForms[waveIndex].WaveMethod(data, channels);
 	}
 }

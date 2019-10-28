@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
@@ -8,6 +9,7 @@ public class Menu : MonoBehaviour
 	public GameObject MainMenuUI;
 	public GameObject PauseMenuUI;
 	public Slider CameraSensitivitySlider;
+	private List<Oscillator> oscList = new List<Oscillator>();
 
 	public void Resume()
 	{
@@ -76,11 +78,16 @@ public class Menu : MonoBehaviour
 	{
 		gameStarted = false;
 		MainMenuUI.SetActive(true);
+		// note: this main menu music will be stopped by
+		// the creation of a new jart, because when an old
+		// jart gets cleaned up, so do all oscillators.
+		Jart.StartMainMenuMusic();
 	}
 
 	void Update()
 	{
-		if(Input.GetKeyDown(KeyCode.Escape))
+		// esc key to show pause menu, if we've started the game
+		if(gameStarted && Input.GetKeyDown(KeyCode.Escape))
 		{
 			Jart.ToggleSongQuiet();
 			if (!isPaused)

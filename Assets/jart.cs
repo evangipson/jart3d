@@ -352,6 +352,21 @@ public class Jart : MonoBehaviour
 		}
 	}
 
+	public static void StartMainMenuMusic()
+	{
+		clearJart();
+		// get a new scale & timings
+		possibleFrequencies = buildScaleFrequencies();
+		possibleTimings = buildNoteTimings();
+		int mainMenuOscillatorCount = Utils.Randomizer.Next(1, 4);
+		for(int i = 0; i < mainMenuOscillatorCount; i++)
+		{
+			// when you add the oscillator, it will start playing
+			Oscillator newOsc = new GameObject("Oscillator").AddComponent<Oscillator>();
+			oscList.Add(newOsc);
+		}
+	}
+
 	public void Start()
 	{
 		menuComponent = GameObject.Find("Menu").GetComponent<Menu>();

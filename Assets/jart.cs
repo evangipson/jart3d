@@ -32,12 +32,12 @@ public class Jart : MonoBehaviour
 	{
 		if (!isQuiet)
 		{
-			Constants.MusicVolume = 0.5f;
+			AudioListener.volume = 0.5f;
 			isQuiet = true;
 		}
 		else
 		{
-			Constants.MusicVolume = 1.0f;
+			AudioListener.volume = 1.0f;
 			isQuiet = false;
 		}
 	}
@@ -50,12 +50,12 @@ public class Jart : MonoBehaviour
 		{
 			if (i == 0)
 			{
-				localScaleIntervals[0] = 1;
+				localScaleIntervals[0] = 0;
 			}
 			else
 			{
 				// how many half steps between each interval?
-				localScaleIntervals[i] = localScaleIntervals[i - 1] + Utils.Randomizer.Next(1, 4);
+				localScaleIntervals[i] = localScaleIntervals[i - 1] + Utils.Randomizer.Next(1, 3);
 			}
 		}
 		return localScaleIntervals;
@@ -70,7 +70,7 @@ public class Jart : MonoBehaviour
 			if (i == 0)
 			{
 				// set the base tone
-				scaleFrequencies[0] = Utils.Randomizer.Next(8000, 20000) * 0.01f;
+				scaleFrequencies[0] = 1.059463f * Utils.Randomizer.Next(200, 300);
 			}
 			else
 			{
@@ -84,16 +84,16 @@ public class Jart : MonoBehaviour
 	public static float[] buildNoteTimings()
 	{
 		float[] localNoteTimes = new float[6];
-		for (int i = 0; i < localNoteTimes.Length - 1; i++)
+		for (int i = 0; i < localNoteTimes.Length; i++)
 		{
 			// quarter note at 60bpm is 1 second
 			if (i == 0)
 			{
-				localNoteTimes[i] = Utils.Randomizer.Next(50, 250); // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
+				localNoteTimes[i] = Utils.Randomizer.Next(100, 1000); // 1st note timing is a sixteenth note, or 1/4th of 1 second at 60bpm
 			}
 			else
 			{
-				localNoteTimes[i] = localNoteTimes[i - 1] * 2;
+				localNoteTimes[i] = localNoteTimes[i - 1] * 1.33f;
 			}
 		}
 		return localNoteTimes;

@@ -28,5 +28,5 @@ public static class Constants
 	};
 	// how far the jart universe will expand.
 	public static int JartCubeSize = 1000;
-	public static float MusicVolume = 0.1f;
+	public static float MusicVolume = 1.0f;
 }

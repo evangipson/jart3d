@@ -34,12 +34,12 @@ public class Jart : MonoBehaviour
 	{
 		if (!isQuiet)
 		{
-			AudioListener.volume = 0.5f;
+			AudioListener.volume *= 0.5f;
 			isQuiet = true;
 		}
 		else
 		{
-			AudioListener.volume = 1.0f;
+			AudioListener.volume *= 2f;
 			isQuiet = false;
 		}
 	}
@@ -358,7 +358,7 @@ public class Jart : MonoBehaviour
 		// get a new scale & timings
 		possibleFrequencies = buildScaleFrequencies();
 		possibleTimings = buildNoteTimings();
-		int mainMenuOscillatorCount = Utils.Randomizer.Next(1, 4);
+		int mainMenuOscillatorCount = Utils.Randomizer.Next(2, 5);
 		for(int i = 0; i < mainMenuOscillatorCount; i++)
 		{
 			// when you add the oscillator, it will start playing

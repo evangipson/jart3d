@@ -9,6 +9,7 @@ public class Menu : MonoBehaviour
 	public GameObject MainMenuUI;
 	public GameObject PauseMenuUI;
 	public Slider CameraSensitivitySlider;
+	public Slider VolumeSlider;
 	private List<Oscillator> oscList = new List<Oscillator>();
 
 	public void Resume()
@@ -31,6 +32,11 @@ public class Menu : MonoBehaviour
 	{
 		CameraBehavior.sensitivityX = CameraSensitivitySlider.value;
 		CameraBehavior.sensitivityY = CameraSensitivitySlider.value;
+	}
+
+	public void AdjustVolume(float sliderValue)
+	{
+		AudioListener.volume = sliderValue * 0.01f;
 	}
 
 	public void ViewJart()

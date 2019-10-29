@@ -260,10 +260,10 @@ public class Oscillator : MonoBehaviour
 		waveForms = new List<Wave>();
 		// Put all of our wave form methods in an accessible data structure,
 		// passed with a maxVolume float
-		waveForms.Add(new Wave(playTriangleWave, 0.07f));
-		waveForms.Add(new Wave(playSineWave, 0.008f));
-		waveForms.Add(new Wave(playSquareWave, 0.05f));
-		waveForms.Add(new Wave(playEvanWave, 0.03f));
+		waveForms.Add(new Wave(playTriangleWave, 0.6f));
+		waveForms.Add(new Wave(playSineWave, 0.09f));
+		waveForms.Add(new Wave(playSquareWave, 0.3f));
+		waveForms.Add(new Wave(playEvanWave, 0.1f));
 		//waveForms.Add(new Wave(playPinkNoiseWave, 0.3f));
 		//waveForms.Add(new Wave(playWhiteNoiseWave, 0.007f));
 		// we currently have multiple possible waves, so pick one

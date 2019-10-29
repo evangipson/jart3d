@@ -51,14 +51,20 @@ public class Oscillator : MonoBehaviour
 			noteTime = Utils.GetRandomArrayItem(Jart.possibleTimings);
 		}
 		frequency = Utils.GetRandomArrayItem(Jart.possibleFrequencies);
-		if (waveIndex == 3 || waveIndex == 4)
-		{
-			lowPassFilter.lowpassResonanceQ = 1;
-		}
 		// now the new envelope
 		attack = Utils.Randomizer.Next(1, 50) * 0.01f * waveForms[waveIndex].MaxVolume;
 		release = attack + Utils.Randomizer.Next(1, 50) * 0.01f * waveForms[waveIndex].MaxVolume;
 		sustain = noteTime / 1000; // in ms
+		// if we have a noise wave, make the notes longer in general
+		if(waveForms[waveIndex].WaveMethod == playPinkNoiseWave || waveForms[waveIndex].WaveMethod == playWhiteNoiseWave)
+		{
+			reverbFilter.reverbPreset = AudioReverbPreset.Auditorium;
+			echoFilter.enabled = false;
+			lowPassFilter.lowpassResonanceQ = 1;
+			sustain *= Utils.Randomizer.Next(4, 8);
+			attack /= Utils.Randomizer.Next(2, 5);
+			release /= Utils.Randomizer.Next(2, 5);
+		}
 	}
 
 	public void DestroyOscillator()
@@ -189,13 +195,34 @@ public class Oscillator : MonoBehaviour
 		}
 	}
 
-	private void playPinkNoiseWave(float[] data, int channels)
+	private void playTriangleSineWave(float[] data, int channels)
 	{
-		frequency = Utils.Randomizer.Next(100, 1000);
-		cutoffFrequencyMod = 50;
+		// increment the frequency so we know where to move on the x-axis of the waveform
+		increment = frequency * 2.0 * Mathf.PI / samplingFreq;
+		// iterate through the data to set the position of the phase (or y-axis) of the waveform
 		for (int i = 0; i < data.Length; i += channels)
 		{
-			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0);
+			phase += increment;
+			data[i] = Mathf.Sin((float)phase) * (float)(waveForms[waveIndex].MaxVolume * (double)Mathf.PingPong((float)phase, 1.0f));
+			// play sound in both speakers if they exist
+			if (channels == 2)
+			{
+				data[i + 1] = data[i];
+			}
+
+			if (phase > (2.0 * Mathf.PI))
+			{
+				phase = 0f;
+			}
+		}
+	}
+
+	private void playPinkNoiseWave(float[] data, int channels)
+	{
+		cutoffFrequencyMod = 70;
+		for (int i = 0; i < data.Length; i += channels)
+		{
+			data[i] = (float)(Utils.Randomizer.Next(100, 1000) * 0.01f) * 2.0f - 1.0f;
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -206,10 +233,9 @@ public class Oscillator : MonoBehaviour
 
 	private void playWhiteNoiseWave(float[] data, int channels)
 	{
-		frequency = Utils.Randomizer.Next(100, 1000);
 		for (int i = 0; i < data.Length; i += channels)
 		{
-			data[i] = (float)((Utils.Randomizer.Next(1, 1000) * 0.01f) * 2.0 - 1.0);
+			data[i] = (float)(Utils.Randomizer.Next(100, 1000) * 0.01f) * 2.0f - 1.0f;
 			// play sound in both speakers if they exist
 			if (channels == 2)
 			{
@@ -258,12 +284,13 @@ public class Oscillator : MonoBehaviour
 		waveForms = new List<Wave>();
 		// Put all of our wave form methods in an accessible data structure,
 		// passed with a maxVolume float
-		waveForms.Add(new Wave(playTriangleWave, 0.1f));
-		waveForms.Add(new Wave(playSineWave, 0.07f));
-		waveForms.Add(new Wave(playSquareWave, 0.1f));
-		waveForms.Add(new Wave(playEvanWave, 0.08f));
-		//waveForms.Add(new Wave(playPinkNoiseWave, 0.3f));
-		//waveForms.Add(new Wave(playWhiteNoiseWave, 0.007f));
+		waveForms.Add(new Wave(playTriangleWave, 0.15f));
+		waveForms.Add(new Wave(playSineWave, 0.09f));
+		waveForms.Add(new Wave(playTriangleSineWave, 0.15f));
+		waveForms.Add(new Wave(playSquareWave, 0.15f));
+		waveForms.Add(new Wave(playEvanWave, 0.3f));
+		waveForms.Add(new Wave(playPinkNoiseWave, 0.05f));
+		waveForms.Add(new Wave(playWhiteNoiseWave, 0.008f));
 		// we currently have multiple possible waves, so pick one
 		// note: random.Next is inclusive lower bound, exclusive high bound
 		waveIndex = Utils.Randomizer.Next(0, waveForms.Count);

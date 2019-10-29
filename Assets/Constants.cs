@@ -16,6 +16,7 @@ public static class Constants
 	{
 		//"Skybox/Cubemap",
 		"Unlit/Color",
+		"Unlit/IntersectionShader",
 		"Custom/ToonShader",
 	};
 	public static PrimitiveType[] PossiblePrimitiveTypes =

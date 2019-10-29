@@ -182,7 +182,10 @@ public class Jart : MonoBehaviour
 		// grab the shape's renderer, don't create a new one
 		Renderer shapeRenderer = shape.GetComponent<Renderer>();
 		// make sure the color is pure by using the mask shader
+		// which shader are we going to use this time?
+		//worldShaderName = Constants.Possible3dShaders[Utils.Randomizer.Next(0, Constants.Possible3dShaders.Length)];
 		shapeRenderer.material.shader = Shader.Find(worldShaderName);
+
 		// set a color after shader
 		shapeRenderer.material.color = color;
 		// set the position of the object

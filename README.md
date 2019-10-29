@@ -12,7 +12,7 @@ Here are some of my favorite 3d jarts so far:
 
 ![Abstract 3d Jart 3](https://evangipson.com/jart/jart3d-07.png)
 
-![Abstract 3d Jart 4](https://evangipson.com/jart/jart3d-09.png)
+![Abstract 3d Jart 4](https://evangipson.com/jart/jart3d-10.png)
 
 | jart3d Readme |
 |---|

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// A static class filled with values that will never change
@@ -14,8 +15,8 @@ public static class Constants
 	public static string[] Possible3dShaders =
 	{
 		//"Skybox/Cubemap",
-		//"Unlit/Color",
-		"Custom/ToonShader"
+		"Unlit/Color",
+		"Custom/ToonShader",
 	};
 	public static PrimitiveType[] PossiblePrimitiveTypes =
 	{

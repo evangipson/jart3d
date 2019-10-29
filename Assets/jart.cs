@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Jart : MonoBehaviour
@@ -27,9 +26,11 @@ public class Jart : MonoBehaviour
 	public static int[] scaleIntervals;
 	public static float[] possibleTimings;
 	private static bool isQuiet = false;
+	public static string worldShaderName;
 
 	private Menu menuComponent;
 
+	// music "brain" functions
 	public static void ToggleSongQuiet()
 	{
 		if (!isQuiet)
@@ -46,21 +47,37 @@ public class Jart : MonoBehaviour
 
 	private static int[] buildScaleIntervals()
 	{
-		scaleTones = Utils.Randomizer.Next(5, 16);
-		int[] localScaleIntervals = new int[scaleTones];
-		for (int i = 0; i < scaleTones; i++)
+		List<List<int>> potentialScaleIntervals = new List<List<int>>();
+		// set up all potential scales
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 4, 5, 7, 9, 11 }); // major
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 3, 5, 7, 8, 10 }); // natural minor
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 3, 5, 7, 8, 11 }); // harmonic minor
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 3, 5, 7, 9, 11 }); // melodic minor
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 4, 7, 9 }); // pentatonic
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 5, 10 }); // custom evan ambient
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 4, 5, 7, 9, 10 }); // mixolydian
+		potentialScaleIntervals.Add(new List<int> { 0, 2, 4, 6, 7, 9, 11 }); // lydian
+		potentialScaleIntervals.Add(new List<int> { 0, 3, 5, 6, 7, 10 }); // blues
+		potentialScaleIntervals.Add(new List<int> { 0, 3, 4, 7, 8, 11 }); // hexatonic
+		List<int> localScaleIntervals = new List<int>() { 0 };
+		if (Utils.Randomizer.Next(0, 100) > 66)
 		{
-			if (i == 0)
-			{
-				localScaleIntervals[0] = 0;
-			}
-			else
+			int scaleTones = Utils.Randomizer.Next(4, 16);
+			// generate a new unique scale
+			// note: i = 1 to begin loop here because we set first interval above
+			// in the localScaleIntervals initialization
+			for (int i = 1; i < scaleTones; i++)
 			{
 				// how many half steps between each interval?
-				localScaleIntervals[i] = localScaleIntervals[i - 1] + Utils.Randomizer.Next(1, 3);
+				localScaleIntervals.Add(localScaleIntervals[i - 1] + Utils.Randomizer.Next(1, 3));
 			}
 		}
-		return localScaleIntervals;
+		else
+		{
+			// get a scale from the presets
+			localScaleIntervals = potentialScaleIntervals.ToArray()[Utils.Randomizer.Next(0, potentialScaleIntervals.Count)];
+		}
+		return localScaleIntervals.ToArray();
 	}
 
 	public static float[] buildScaleFrequencies()
@@ -165,7 +182,7 @@ public class Jart : MonoBehaviour
 		// grab the shape's renderer, don't create a new one
 		Renderer shapeRenderer = shape.GetComponent<Renderer>();
 		// make sure the color is pure by using the mask shader
-		shapeRenderer.material.shader = Shader.Find(Utils.GetRandomArrayItem(Constants.Possible3dShaders));
+		shapeRenderer.material.shader = Shader.Find(worldShaderName);
 		// set a color after shader
 		shapeRenderer.material.color = color;
 		// set the position of the object
@@ -320,6 +337,8 @@ public class Jart : MonoBehaviour
 			oscList[i].DestroyOscillator();
 		}
 		oscList.Clear();
+		// which shader are we going to use this time?
+		worldShaderName = Constants.Possible3dShaders[Utils.Randomizer.Next(0, Constants.Possible3dShaders.Length)];
 		// remove jartboards and jartlets from unity
 		jartBoards.ForEach(delegate(GameObject jartBoard){
 			Destroy(jartBoard);
@@ -363,6 +382,8 @@ public class Jart : MonoBehaviour
 		{
 			// when you add the oscillator, it will start playing
 			Oscillator newOsc = new GameObject("Oscillator").AddComponent<Oscillator>();
+			// attach oscillators to main menu
+			newOsc.transform.parent = GameObject.Find("Menu").GetComponent<Menu>().transform;
 			oscList.Add(newOsc);
 		}
 	}

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Timers;
 using UnityEngine;
 
 public class Wave
@@ -48,7 +46,7 @@ public class Oscillator : MonoBehaviour
 	private void createNewNoteProperties()
 	{
 		// chance for a note to have the same timing as before
-		if (Utils.Randomizer.Next() > 70)
+		if (Utils.Randomizer.Next(0, 100) > 70)
 		{
 			noteTime = Utils.GetRandomArrayItem(Jart.possibleTimings);
 		}
@@ -78,7 +76,7 @@ public class Oscillator : MonoBehaviour
 	{
 		createNewNoteProperties();
 		// small chance to modify our rest value
-		if (Utils.Randomizer.Next() > 80)
+		if (Utils.Randomizer.Next(0, 100) > 80)
 		{
 			rest = (Utils.GetRandomArrayItem(Jart.possibleTimings) / 1000) * Utils.Randomizer.Next(0, 4);
 		}
@@ -260,10 +258,10 @@ public class Oscillator : MonoBehaviour
 		waveForms = new List<Wave>();
 		// Put all of our wave form methods in an accessible data structure,
 		// passed with a maxVolume float
-		waveForms.Add(new Wave(playTriangleWave, 0.6f));
-		waveForms.Add(new Wave(playSineWave, 0.09f));
-		waveForms.Add(new Wave(playSquareWave, 0.3f));
-		waveForms.Add(new Wave(playEvanWave, 0.1f));
+		waveForms.Add(new Wave(playTriangleWave, 0.1f));
+		waveForms.Add(new Wave(playSineWave, 0.07f));
+		waveForms.Add(new Wave(playSquareWave, 0.1f));
+		waveForms.Add(new Wave(playEvanWave, 0.08f));
 		//waveForms.Add(new Wave(playPinkNoiseWave, 0.3f));
 		//waveForms.Add(new Wave(playWhiteNoiseWave, 0.007f));
 		// we currently have multiple possible waves, so pick one
@@ -288,7 +286,7 @@ public class Oscillator : MonoBehaviour
 		echoFilter.decayRatio = Utils.Randomizer.Next(5, 9) * 0.1f;
 		// ensure we can mess around with the reverb filter,
 		// otherwise, all values can't be modified: https://docs.unity3d.com/Manual/class-AudioReverbFilter.html
-		reverbFilter.reverbPreset = Utils.Randomizer.Next() > 50 ? AudioReverbPreset.Arena : AudioReverbPreset.Mountains;
+		reverbFilter.reverbPreset = Utils.Randomizer.Next(0, 100) > 50 ? AudioReverbPreset.Arena : AudioReverbPreset.Mountains;
 		// change around the reverb per OSCILLATOR, not per note
 		//reverbFilter.diffusion = Utils.Randomizer.Next(20, 90); // echo "density", in percent
 		//reverbFilter.density = Utils.Randomizer.Next(20, 90); // modal "density", in percent

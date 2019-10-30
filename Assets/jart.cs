@@ -6,10 +6,11 @@ public class Jart : MonoBehaviour
 	private static List<GameObject> jartBoards = new List<GameObject>();
 	private static List<GameObject> jartlets = new List<GameObject>();
 	private static int totalJartletsPerJart;
+	private static int minJartlets = 4;
+	private static int maxJartlets = 70;
 	public static int ColorPaletteIndex;
 	private static int totalJartboards;
 	private static int jartboardSize;
-	public static int jartletSize;
 	// these are declared outside of a function because sometimes i don't want them to change when the function is called.
 	private static int jartletWidth;
 	private static int jartletHeight;
@@ -190,7 +191,7 @@ public class Jart : MonoBehaviour
 		shapeRenderer.material.color = color;
 		// set the position of the object
 		shape.transform.position = new Vector3(originX, originY, originZ);
-		shape.transform.rotation = skew;
+		shape.transform.localRotation = skew;
 
 		// set the rendering & shape layers
 		//shapeRenderer.sortingOrder = zIndex;
@@ -207,67 +208,71 @@ public class Jart : MonoBehaviour
 	/// </summary>
 	private static void createJartlets(int jartletAmount, int jartboardIndex)
 	{
+		int degreeShift = Utils.Randomizer.Next(-20, 20);
+		Vector3 baseJartletSize = new Vector3(
+			Utils.Randomizer.Next((int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.09), (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5)),
+			Utils.Randomizer.Next((int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.09), (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5)),
+			Utils.Randomizer.Next((int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.09), (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5))
+		);
+		Vector3 positionShift = new Vector3(
+			Utils.Randomizer.Next(-(int)baseJartletSize.x, (int)baseJartletSize.x),
+			Utils.Randomizer.Next(-(int)baseJartletSize.y, (int)baseJartletSize.y),
+			Utils.Randomizer.Next(-(int)baseJartletSize.z, (int)baseJartletSize.z)
+		);
 		// first the jartlet's parameters will be either modified or made up,
 		// then the jartlet will be created and added to the jartlets list.
 		for (int i = 0; i < jartletAmount; i++)
 		{
 			// chance to repeat the jartlet with a slight shift, without changing width/height/depth.
 			// note: we have to have made a jartlet before repeating one.
-			if (i > 0 && Utils.Randomizer.Next(0, 100) > 40)
+			if (i > 0 && Utils.Randomizer.Next(0, 100) > 15)
 			{
 				// get bigger or smaller
-				if (Utils.Randomizer.Next(0, 10) > 7)
+				if (Utils.Randomizer.Next(0, 10) > 5)
 				{
-					jartletSize = Utils.Randomizer.Next((int)(jartletSize * 1.0), (int)(jartletSize * 1.3));
+					jartletWidth += Utils.Randomizer.Next((int)(baseJartletSize.x * -0.25), (int)(baseJartletSize.x * 0.25));
+					jartletHeight += Utils.Randomizer.Next((int)(baseJartletSize.y * -0.25), (int)(baseJartletSize.y * 0.25));
+					jartletDepth += Utils.Randomizer.Next((int)(baseJartletSize.z * -0.25), (int)(baseJartletSize.z * 0.25));
 				}
-				else
-				{
-					jartletSize = Utils.Randomizer.Next((int)(jartletSize * 0.66), (int)(jartletSize * 1.0));
-				}
-				// now calculate size
-				jartletWidth = Utils.Randomizer.Next((int)(jartletSize * 0.25), jartletSize);
-				jartletHeight = Utils.Randomizer.Next((int)(jartletSize * 0.25), jartletSize);
-				jartletDepth = Utils.Randomizer.Next((int)(jartletSize * 0.25), jartletSize);
-				// first modify position
+				// modify position
 				if (Utils.Randomizer.Next(0, 10) > 3)
 				{
-					jartletPositionX += Utils.Randomizer.Next(0, (int)(jartletWidth * 0.75));
+					jartletPositionX += (int)positionShift.x;
 				}
 				if (Utils.Randomizer.Next(0, 10) > 3)
 				{
-					jartletPositionY += Utils.Randomizer.Next(0, (int)(jartletHeight * 0.75));
+					jartletPositionY += (int)positionShift.y;
 				}
 				if (Utils.Randomizer.Next(0, 10) > 3)
 				{
-					jartletPositionZ += Utils.Randomizer.Next(0, (int)(jartletDepth * 0.75));
+					jartletPositionZ += (int)positionShift.z;
 				}
-				// now rotation
-				if (Utils.Randomizer.Next(0, 10) > 7)
+				// modify rotation
+				if (Utils.Randomizer.Next(0, 10) > 3)
 				{
-					jartletSkew.x += Utils.Randomizer.Next(-10, 10);
+					jartletSkew.x += degreeShift;
 				}
-				if (Utils.Randomizer.Next(0, 10) > 7)
+				if (Utils.Randomizer.Next(0, 10) > 3)
 				{
-					jartletSkew.y += Utils.Randomizer.Next(-10, 10);
+					jartletSkew.y += degreeShift;
 				}
-				if (Utils.Randomizer.Next(0, 10) > 7)
+				if (Utils.Randomizer.Next(0, 10) > 3)
 				{
-					jartletSkew.z += Utils.Randomizer.Next(-10, 10);
+					jartletSkew.z += degreeShift;
 				}
 			}
 			// generate new parameters for a unique jartlet
 			else
 			{
-				jartletSize = Utils.Randomizer.Next((int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.075), (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5));
+				// generate fresh jartlet parameters
 				jartletColor = Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[ColorPaletteIndex]);
 				jartletType = Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes);
-				jartletWidth = Utils.Randomizer.Next((int)(jartletSize * 0.25), jartletSize);
-				jartletHeight = Utils.Randomizer.Next((int)(jartletSize * 0.25), jartletSize);
-				jartletDepth = Utils.Randomizer.Next((int)(jartletSize * 0.25), jartletSize);
-				jartletPositionX = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.x - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.x + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5));
-				jartletPositionY = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.y - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.y + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5));
-				jartletPositionZ = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].gameObject.transform.position.z - (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5), (int)jartBoards[jartboardIndex].gameObject.transform.position.z + (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5));
-				//jartletPositionZ = (int)jartBoards[jartboardIndex].gameObject.transform.position.z;
+				jartletWidth = Utils.Randomizer.Next((int)(baseJartletSize.x * 0.25), (int)baseJartletSize.x);
+				jartletHeight = Utils.Randomizer.Next((int)(baseJartletSize.y * 0.25), (int)baseJartletSize.y);
+				jartletDepth = Utils.Randomizer.Next((int)(baseJartletSize.z * 0.25), (int)baseJartletSize.z);
+				jartletPositionX = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].transform.position.x - (int)jartBoards[jartboardIndex].transform.localScale.x / 2, (int)jartBoards[jartboardIndex].transform.position.x + (int)jartBoards[jartboardIndex].transform.localScale.x / 2);
+				jartletPositionY = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].transform.position.y - (int)jartBoards[jartboardIndex].transform.localScale.y / 2, (int)jartBoards[jartboardIndex].transform.position.y + (int)jartBoards[jartboardIndex].transform.localScale.y / 2);
+				jartletPositionZ = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].transform.position.z - (int)jartBoards[jartboardIndex].transform.localScale.z / 2, (int)jartBoards[jartboardIndex].transform.position.z + (int)jartBoards[jartboardIndex].transform.localScale.z / 2);
 				jartletSkew = Quaternion.Euler(Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360));
 			}
 
@@ -306,7 +311,7 @@ public class Jart : MonoBehaviour
 		// how big is this jartboard?
 		jartboardSize = Utils.Randomizer.Next((int)(Constants.JartCubeSize * 0.1), (int)(Constants.JartCubeSize * 0.5));
 		// how many jartlets should we have?
-		totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
+		totalJartletsPerJart = Utils.Randomizer.Next(minJartlets, maxJartlets);
 		// how many oscillators per jartboard?
 		//int oscillatorsPerJartboard = Utils.Randomizer.Next(1, 2);
 		int oscillatorsPerJartboard = 1;
@@ -418,7 +423,7 @@ public class Jart : MonoBehaviour
 				if (jartBoards.Count > 0)
 				{
 					// how many jartlets should we have?
-					totalJartletsPerJart = Utils.Randomizer.Next(3, 40);
+					totalJartletsPerJart = Utils.Randomizer.Next(minJartlets, maxJartlets);
 					// Add jartlets to the last jartboard created
 					createJartlets(totalJartletsPerJart, jartBoards.Count - 1);
 				}

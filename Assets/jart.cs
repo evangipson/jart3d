@@ -7,7 +7,7 @@ public class Jart : MonoBehaviour
 	private static List<GameObject> jartlets = new List<GameObject>();
 	private static int totalJartletsPerJart;
 	private static int minJartlets = 4;
-	private static int maxJartlets = 70;
+	private static int maxJartlets = 20;
 	public static int ColorPaletteIndex;
 	private static int totalJartboards;
 	private static int jartboardSize;
@@ -276,7 +276,7 @@ public class Jart : MonoBehaviour
 				jartletSkew = Quaternion.Euler(Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360));
 			}
 
-			jartlets.Add(createShape(
+			GameObject newJartlet = createShape(
 				jartletColor,
 				jartletType,
 				jartletSkew,
@@ -286,7 +286,11 @@ public class Jart : MonoBehaviour
 				jartletPositionX,
 				jartletPositionY,
 				jartletPositionZ
-			));
+			);
+			// set some properties before adding it to the jartlet list
+			newJartlet.transform.parent = jartBoards[jartboardIndex].transform;
+			newJartlet.name = jartletType.ToString() + " Jartlet";
+			jartlets.Add(newJartlet);
 		}
 	}
 
@@ -318,10 +322,11 @@ public class Jart : MonoBehaviour
 		// get a new scale & timings
 		possibleFrequencies = buildScaleFrequencies();
 		possibleTimings = buildNoteTimings();
+		PrimitiveType jartboardShape = Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes);
 		// now add the jartboard
-		jartBoards.Add(createShape(
+		GameObject newJartboard = createShape(
 			Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[ColorPaletteIndex]),
-			Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes),
+			jartboardShape,
 			Quaternion.Euler(Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360), Utils.Randomizer.Next(0, 360)),
 			Utils.Randomizer.Next((int)(jartboardSize * 0.5), jartboardSize),
 			Utils.Randomizer.Next((int)(jartboardSize * 0.5), jartboardSize),
@@ -329,7 +334,9 @@ public class Jart : MonoBehaviour
 			position.x,
 			position.y,
 			position.z
-		));
+		);
+		newJartboard.name = jartboardShape.ToString() + " Jartboard";
+		jartBoards.Add(newJartboard);
 		// and then attach the oscillator(s) to it
 		for(int i = 0; i < oscillatorsPerJartboard; i++)
 		{

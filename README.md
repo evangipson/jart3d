@@ -8,7 +8,7 @@ Try to create multiple jartboards and see what happens!
 Here are some of my favorite 3d jarts so far:
 ![Abstract 3d Jart 1](https://evangipson.com/jart/jart3d-06.png)
 
-![Abstract 3d Jart 2](https://evangipson.com/jart/jart3d-08.png)
+![Abstract 3d Jart 2](https://evangipson.com/jart/jart3d-11.png)
 
 ![Abstract 3d Jart 3](https://evangipson.com/jart/jart3d-07.png)
 

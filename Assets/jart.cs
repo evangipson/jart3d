@@ -6,15 +6,15 @@ public class Jart : MonoBehaviour
 	private static List<GameObject> jartBoards = new List<GameObject>();
 	private static List<GameObject> jartlets = new List<GameObject>();
 	private static int totalJartletsPerJart;
-	private static int minJartlets = 4;
-	private static int maxJartlets = 20;
+	private static int minJartlets = 10;
+	private static int maxJartlets = 100;
 	public static int ColorPaletteIndex;
 	private static int totalJartboards;
 	private static int jartboardSize;
 	// these are declared outside of a function because sometimes i don't want them to change when the function is called.
-	private static int jartletWidth;
-	private static int jartletHeight;
-	private static int jartletDepth;
+	private static float jartletWidth;
+	private static float jartletHeight;
+	private static float jartletDepth;
 	private static int jartletPositionX;
 	private static int jartletPositionY;
 	private static int jartletPositionZ;
@@ -163,7 +163,7 @@ public class Jart : MonoBehaviour
 	 * Creates a shape. Intended to be used to create Jartlets
 	 * and the Jartboard, which is returned by default (using
 	 * default parameters). */
-	private static GameObject createShape(Color32 color, PrimitiveType typeOfShape, Quaternion skew, int width = 1, int height = 1, int depth = 1, float originX = 0, float originY = 0, float originZ = 0)
+	private static GameObject createShape(Color32 color, PrimitiveType typeOfShape, Quaternion skew, float width = 1f, float height = 1f, float depth = 1f, float originX = 0, float originY = 0, float originZ = 0)
 	{
 		int shapeRoll = Utils.Randomizer.Next(0, 4);
 		GameObject shape;
@@ -190,7 +190,7 @@ public class Jart : MonoBehaviour
 		// set a color after shader
 		shapeRenderer.material.color = color;
 		// set the position of the object
-		shape.transform.position = new Vector3(originX, originY, originZ);
+		shape.transform.localPosition = new Vector3(originX, originY, originZ);
 		shape.transform.localRotation = skew;
 
 		// set the rendering & shape layers
@@ -210,9 +210,9 @@ public class Jart : MonoBehaviour
 	{
 		int degreeShift = Utils.Randomizer.Next(-20, 20);
 		Vector3 baseJartletSize = new Vector3(
-			Utils.Randomizer.Next((int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.09), (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.x * 0.5)),
-			Utils.Randomizer.Next((int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.09), (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.y * 0.5)),
-			Utils.Randomizer.Next((int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.09), (int)(jartBoards[jartboardIndex].gameObject.transform.localScale.z * 0.5))
+			jartBoards[jartboardIndex].transform.localScale.x * Utils.Randomizer.Next(2, 6) * 0.1f,
+			jartBoards[jartboardIndex].transform.localScale.y * Utils.Randomizer.Next(2, 6) * 0.1f,
+			jartBoards[jartboardIndex].transform.localScale.z * Utils.Randomizer.Next(2, 6) * 0.1f
 		);
 		Vector3 positionShift = new Vector3(
 			Utils.Randomizer.Next(-(int)baseJartletSize.x, (int)baseJartletSize.x),
@@ -225,14 +225,14 @@ public class Jart : MonoBehaviour
 		{
 			// chance to repeat the jartlet with a slight shift, without changing width/height/depth.
 			// note: we have to have made a jartlet before repeating one.
-			if (i > 0 && Utils.Randomizer.Next(0, 100) > 15)
+			if (jartlets.Count > 0 && Utils.Randomizer.Next(0, 100) > 3)
 			{
 				// get bigger or smaller
 				if (Utils.Randomizer.Next(0, 10) > 5)
 				{
-					jartletWidth += Utils.Randomizer.Next((int)(baseJartletSize.x * -0.25), (int)(baseJartletSize.x * 0.25));
-					jartletHeight += Utils.Randomizer.Next((int)(baseJartletSize.y * -0.25), (int)(baseJartletSize.y * 0.25));
-					jartletDepth += Utils.Randomizer.Next((int)(baseJartletSize.z * -0.25), (int)(baseJartletSize.z * 0.25));
+					jartletWidth += Utils.Randomizer.Next(-5, 5) * 0.1f;
+					jartletHeight += Utils.Randomizer.Next(-5, 5) * 0.1f;
+					jartletDepth += Utils.Randomizer.Next(-5, 5) * 0.1f;
 				}
 				// modify position
 				if (Utils.Randomizer.Next(0, 10) > 3)
@@ -267,9 +267,9 @@ public class Jart : MonoBehaviour
 				// generate fresh jartlet parameters
 				jartletColor = Utils.GetRandomArrayItem(Colors.PossibleColorPalettes[ColorPaletteIndex]);
 				jartletType = Utils.GetRandomArrayItem(Constants.PossiblePrimitiveTypes);
-				jartletWidth = Utils.Randomizer.Next((int)(baseJartletSize.x * 0.25), (int)baseJartletSize.x);
-				jartletHeight = Utils.Randomizer.Next((int)(baseJartletSize.y * 0.25), (int)baseJartletSize.y);
-				jartletDepth = Utils.Randomizer.Next((int)(baseJartletSize.z * 0.25), (int)baseJartletSize.z);
+				jartletWidth = baseJartletSize.x;
+				jartletHeight = baseJartletSize.y;
+				jartletDepth = baseJartletSize.z;
 				jartletPositionX = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].transform.position.x - (int)jartBoards[jartboardIndex].transform.localScale.x / 2, (int)jartBoards[jartboardIndex].transform.position.x + (int)jartBoards[jartboardIndex].transform.localScale.x / 2);
 				jartletPositionY = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].transform.position.y - (int)jartBoards[jartboardIndex].transform.localScale.y / 2, (int)jartBoards[jartboardIndex].transform.position.y + (int)jartBoards[jartboardIndex].transform.localScale.y / 2);
 				jartletPositionZ = Utils.Randomizer.Next((int)jartBoards[jartboardIndex].transform.position.z - (int)jartBoards[jartboardIndex].transform.localScale.z / 2, (int)jartBoards[jartboardIndex].transform.position.z + (int)jartBoards[jartboardIndex].transform.localScale.z / 2);
